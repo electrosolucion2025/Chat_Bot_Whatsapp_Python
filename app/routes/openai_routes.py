@@ -20,11 +20,11 @@ def get_openai_response(request: MessageRequest):
     """
     
     # Check if the user has an active session
-    session_id = request.session_id
+    session_id = request.session_id or session_manager.get_session_by_user(request.user_id)
     
-    # Validate the session ID, if not exists, create a new session
-    if not session_id or session_id not in session_manager.sessions:
-        session_id = session_manager.create_session()
+    # If no session is found, create a new session
+    if not session_id:
+        session_id = session_manager.create_session(request.user_id)
     
     # Get the session's history
     history = session_manager.get_session(session_id)
