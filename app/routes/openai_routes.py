@@ -18,7 +18,6 @@ def get_openai_response(request: MessageRequest):
     - Creates a session if it does not exist.
     - Handles the message and responds using OpenAI.
     """
-    
     # Check if the user has an active session
     session_id = request.session_id or session_manager.get_session_by_user(request.user_id)
     
@@ -40,7 +39,7 @@ def get_openai_response(request: MessageRequest):
     bot_response = generate_response(prompt)
     
     # Add the user message and bot response to the session
-    session_manager.add_to_session(session_id, request.message, bot_response)
+    session_manager.add_to_session(session_id, request.user_id, request.message, bot_response)
     
     return {
         "session_id": session_id,
