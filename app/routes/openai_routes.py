@@ -61,6 +61,7 @@ async def get_openai_response(request: Request):
     if "Resumen del Pedido:" in bot_response:
         # Parse the bot response to get the order summary
         order_data = parse_bot_message(bot_response)
+        print("🚀 ~ order_data:", order_data)
         
         # Get link to payment
         payment_link_response = create_payment_link(order_data, message_request.user_id, session_id)

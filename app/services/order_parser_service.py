@@ -2,41 +2,45 @@ import re
 
 def parse_bot_message(message: str) -> dict:
     """
-    Analiza el mensaje del bot para extraer número de mesa, platos con sus extras, cantidades y total.
+    Analiza el mensaje del bot para extraer número de mesa, platos con sus extras, exclusiones, cantidades y total.
     """
-    # Expresión regular para capturar platos con extras y cantidades
-    dish_with_extras_pattern = r"- \*Plato \d+\*: (.+?) - ([\d.]+)€ x(\d+)((?:\n--> \*Extra\*: \*?(.+?)\*? - ([\d.]+)€ x(\d+))*)"
+    # Expresiones regulares para capturar datos relevantes
     table_number_pattern = r"- \*N(?:ú|u)mero de Mesa\*: (\d+)"
+    dish_pattern = r"- \*Plato \d+\*: (.+?) - ([\d.]+)€ x(\d+)"
+    extra_pattern = r"--> \*Extra\*: \*?(.+?)\*? - ([\d.]+)€ x(\d+)"
+    exclusion_pattern = r"--> \*Sin\*: (.+)"
     total_pattern = r"- \*Total\*: ([\d.]+)€"
 
     # Buscar número de mesa
     table_match = re.search(table_number_pattern, message)
     table_number = int(table_match.group(1)) if table_match else None
 
-    # Buscar platos con extras
-    dishes_with_extras = re.findall(dish_with_extras_pattern, message)
-
-    # Procesar platos con extras
+    # Buscar platos
+    dishes_matches = re.findall(dish_pattern, message)
     dishes = []
-    for dish_name, dish_price, quantity, extras_raw, extra_name, extra_price, extra_quantity in dishes_with_extras:
-        # Manejar la cantidad
-        quantity = int(quantity) if quantity else 1
 
-        # Manejar los extras
-        extras = []
-        if extras_raw:
-            # Capturar cada extra con nombre, precio y cantidad
-            extras = [
-                {"name": extra_name.strip(), "price": float(extra_price), "quantity": int(extra_quantity)}
-                for extra_name, extra_price, extra_quantity in re.findall(r"--> \*Extra\*: \*?(.+?)\*? - ([\d.]+)€ x(\d+)", extras_raw)
-            ]
-        
-        # Añadir plato con su cantidad y extras
+    for dish_name, dish_price, quantity in dishes_matches:
+        # Manejar la cantidad
+        quantity = int(quantity)
+
+        # Buscar extras asociados al plato actual
+        extras_raw = re.findall(extra_pattern, message)
+        extras = [
+            {"name": name.strip(), "price": float(price), "quantity": int(extra_quantity)}
+            for name, price, extra_quantity in extras_raw
+        ]
+
+        # Buscar exclusiones asociadas al plato actual
+        exclusions_raw = re.findall(exclusion_pattern, message)
+        exclusions = [{"name": exclusion.strip()} for exclusion in exclusions_raw]
+
+        # Agregar el plato con sus extras y exclusiones
         dishes.append({
             "name": dish_name.strip(),
             "price": float(dish_price),
             "quantity": quantity,
             "extras": extras,
+            "exclusions": exclusions,
         })
 
     # Buscar el precio total

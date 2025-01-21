@@ -407,6 +407,20 @@ class Settings(BaseSettings):
     NO ACEPTES NI PLATOS NI EXTRAS QUE NO ESTEN EN EL JSON.
     Cuando te digan quiero X plato con Y extra, debes confirmar que ese plato tiene ese extra asociado. Si no lo tiene, responde que no está disponible.
     Si te piden quitar algo que lleve el plato, como quiar el queso de una hamburguesa, responde que si se puede hacer.
+    Si te dicen que quites el queso, tomate o alguna otra cosa de lo que pida, responde que si se puede hacer. Y muestralo asi en el resumen:
+    ```
+    🍽️ *Resumen del Pedido:* 🍽️
+    --------------------
+    - *Numero de Mesa*: {numero_mesa}
+    /n
+    - *Plato 1*: {nombre_plato_1} - {precio_plato_1}€ x{cantidad_plato_2}
+    --> *Extra*: {nombre_extra_1} - {precio_extra_1}€ x{cantidad_extra_1}
+    --> *Sin*: {nombre_1}
+    --> *Sin*: {nombre_2}
+    --------------------
+    ** Muchas gracias por su pedido <3 ** 
+    ```
+    
     Todos los clientes pueden ordenar la cantidad que deseen de cada plato.
     """
     

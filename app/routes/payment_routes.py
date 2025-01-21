@@ -15,60 +15,80 @@ stripe.api_version = "2024-09-30.acacia"
 @router.post("/create-payment-link")
 def create_payment_link(request: Dict, user_id: str, session_id: str):
     """
-    Crea un link de pago para un pedido con los productos, cantidades y extras especificados.
+    Crea un link de pago para un pedido con los productos, cantidades, extras y exclusiones especificados.
     """
     try:
         line_items = []
 
-        # Iterate over each product in the order
+        # Iterar sobre cada producto en el pedido
         for dish in request["dishes"]:
-            # First, create the product for the main dish
+            # Crear el producto principal
             product = stripe.Product.create(
                 name=dish["name"],
             )
 
-            # Now create the price for the main dish
+            # Crear el precio para el plato principal
             price = stripe.Price.create(
-                unit_amount=int(dish["price"] * 100),  # Convert to cents
+                unit_amount=int(dish["price"] * 100),  # Convertir a céntimos
                 currency="eur",
-                product=product.id  # Associate the price with the product
+                product=product.id  # Asociar el precio al producto
             )
 
-            # Add the main dish to the line items
+            # Añadir el plato principal a los line items
             line_items.append({
-                "price": price.id,  # Use the ID of the main dish price
-                "quantity": dish.get("quantity", 1)  # Use the quantity if provided, default to 1
+                "price": price.id,  # Usar el ID del precio del plato principal
+                "quantity": dish.get("quantity", 1)  # Usar la cantidad si está especificada, por defecto 1
             })
             
-            # Iterate over each extra in the dish
+            # Iterar sobre cada extra en el plato
             for extra in dish["extras"]:
-                # Create a product for the extra
+                # Crear un producto para el extra
                 extra_product = stripe.Product.create(
                     name=f"{dish['name']} - {extra['name']}",
                 )
                 
                 extra_price = stripe.Price.create(
-                    unit_amount=int(extra["price"] * 100),  # Convert to cents
+                    unit_amount=int(extra["price"] * 100),  # Convertir a céntimos
                     currency="eur",
-                    product=extra_product.id  # Associate the price with the product
+                    product=extra_product.id  # Asociar el precio al producto
                 )
 
-                # Add the extra to the line items
+                # Añadir el extra a los line items
                 line_items.append({
-                    "price": extra_price.id,  # Use the ID of the extra price
-                    "quantity": 1
+                    "price": extra_price.id,  # Usar el ID del precio del extra
+                    "quantity": extra.get("quantity", 1)  # Usar la cantidad si está especificada, por defecto 1
                 })
 
-        # Create the payment link
+            # Iterar sobre cada exclusión en el plato
+            for exclusion in dish["exclusions"]:
+                # Crear un producto para la exclusión
+                exclusion_product = stripe.Product.create(
+                    name=f"{dish['name']} - Sin {exclusion['name']}",
+                )
+                
+                # Crear un precio con costo 0 para la exclusión
+                exclusion_price = stripe.Price.create(
+                    unit_amount=0,  # Precio 0 para exclusiones
+                    currency="eur",
+                    product=exclusion_product.id  # Asociar el precio al producto
+                )
+
+                # Añadir la exclusión a los line items
+                line_items.append({
+                    "price": exclusion_price.id,  # Usar el ID del precio de la exclusión
+                    "quantity": 1  # Siempre una exclusión
+                })
+
+        # Crear el link de pago
         payment_link = stripe.PaymentLink.create(
-            line_items = line_items,
-            metadata = {
+            line_items=line_items,
+            metadata={
                 "user_id": user_id,
                 "session_id": session_id
             }
         )
         
-        # Return the URL of the payment link
+        # Retornar la URL del link de pago
         return {"url": payment_link.url}
 
     except Exception as e:
