@@ -356,61 +356,61 @@ class Settings(BaseSettings):
                             { "name": "Aguacate", "price": 1.5 }
                         ]
                     },
-                    {
-                        "name": "Bebidas",
-                        "items": [
-                            {
-                                "name": "Coca Cola",
-                                "ingredients": "Refresco",
-                                "price": 2.2,
-                                "extras": [],
-                            },
-                            {
-                                "name": "Coca Cola Zero",
-                                "ingredients": "Refresco sin azúcar",
-                                "price": 2.2,
-                                "extras": [],
-                            },
-                            {
-                                "name": "Fanta Naranja",
-                                "ingredients": "Refresco de naranja",
-                                "price": 2.2,
-                                "extras": [],
-                            },
-                            {
-                                "name": "7Up",
-                                "ingredients": "Refresco de lima-limón",
-                                "price": 2.2,
-                                "extras": [],
-                            },
-                            {
-                                "name": "Agua",
-                                "ingredients": "Agua natural",
-                                "price": 1.4,
-                                "extras": [],
-                            },
-                            {
-                                "name": "Tinto de Verano",
-                                "ingredients": "Vino tinto con gaseosa",
-                                "price": 1.9,
-                                "extras": [],
-                            },
-                            {
-                                "name": "Caña Cruzcampo",
-                                "ingredients": "Cerveza",
-                                "price": 1.7,
-                                "extras": [],
-                            },
-                            {
-                                "name": "Estrella Galicia",
-                                "ingredients": "Cerveza premium",
-                                "price": 1.9,
-                                "extras": [],
-                            }
-                        ]
-                    },
                 ]
-            }
+            },
+            {
+                "name": "Bebidas",
+                "items": [
+                    {
+                        "name": "Coca Cola",
+                        "ingredients": "Refresco",
+                        "price": 2.2,
+                        "extras": [],
+                    },
+                    {
+                        "name": "Coca Cola Zero",
+                        "ingredients": "Refresco sin azúcar",
+                        "price": 2.2,
+                        "extras": [],
+                    },
+                    {
+                        "name": "Fanta Naranja",
+                        "ingredients": "Refresco de naranja",
+                        "price": 2.2,
+                        "extras": [],
+                    },
+                    {
+                        "name": "7Up",
+                        "ingredients": "Refresco de lima-limón",
+                        "price": 2.2,
+                        "extras": [],
+                    },
+                    {
+                        "name": "Agua",
+                        "ingredients": "Agua natural",
+                        "price": 1.4,
+                        "extras": [],
+                    },
+                    {
+                        "name": "Tinto de Verano",
+                        "ingredients": "Vino tinto con gaseosa",
+                        "price": 1.9,
+                        "extras": [],
+                    },
+                    {
+                        "name": "Caña Cruzcampo",
+                        "ingredients": "Cerveza",
+                        "price": 1.7,
+                        "extras": [],
+                    },
+                    {
+                        "name": "Estrella Galicia",
+                        "ingredients": "Cerveza premium",
+                        "price": 1.9,
+                        "extras": [],
+                    }
+                ]
+            },
         ]
     }
     
