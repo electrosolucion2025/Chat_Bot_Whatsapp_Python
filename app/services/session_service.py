@@ -1,6 +1,8 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 from uuid import uuid4
 from datetime import datetime, timedelta
+
+import stripe
 
 from app.core import config
 
@@ -91,7 +93,21 @@ class SessionManager:
         """Clears the session data for a given session ID."""
         if session_id in self.sessions:
             del self.sessions[session_id]
+            
+    def add_payment_link(self, session_id: str, payment_link: str):
+        """Adds a payment link to the session."""
+        if session_id in self.sessions:
+            self.sessions[session_id]["payment_link"] = payment_link
+    
+    def get_payment_link(self, session: str):
+        return self.sessions.get(session, {}).get("payment_link")
+    
+    def clear_payment_link(self, session_id: str):
+        """Clear the payment link from the session."""
+        if session_id in self.sessions and "payment_link" in self.sessions[session_id]:
+            del self.sessions[session_id]["payment_link"]
 
+            
 # Global instance of the SessionManager
 session_manager = SessionManager()
     

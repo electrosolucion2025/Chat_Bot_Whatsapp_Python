@@ -1,6 +1,7 @@
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, ValidationError
+import stripe
 
 from app.routes.payment_routes import create_payment_link
 from app.services.openai_service import build_prompt, generate_response, validate_history
@@ -61,10 +62,17 @@ async def get_openai_response(request: Request):
     if "Resumen del Pedido:" in bot_response:
         # Parse the bot response to get the order summary
         order_data = parse_bot_message(bot_response)
-        print("🚀 ~ order_data:", order_data)
         
+        existing_payment_link = session_manager.get_payment_link(session_id)
+        
+        if existing_payment_link:
+            session_manager.clear_payment_link(session_id)
+            
         # Get link to payment
         payment_link_response = create_payment_link(order_data, message_request.user_id, session_id)
+        
+        # Save the payment link to the session
+        session_manager.add_payment_link(session_id, payment_link_response["url"])
         
         # Add the payment link to the bot response
         bot_response += f"\n\nPuedes pagar tu pedido en el siguiente enlace: {payment_link_response['url']}"
