@@ -4,6 +4,10 @@ class Settings(BaseSettings):
     openai_api_key: str
     stripe_secret_key: str
     stripe_publishable_key: str
+    stripe_endpoint_secret: str
+    twilio_account_sid: str
+    twilio_auth_token: str
+    twilio_phone_number: str
     
     # INITIAL PROMPT for the chatbot
     INITIAL_PROMPT: str = """
@@ -369,9 +373,7 @@ class Settings(BaseSettings):
     
     Cuando el pedido esté listo intenta mostrar un resumen del pedido y el precio total de manera llamativa y amigable.
     Si te preguntan por la forma de pago, debes decirles que se debe pagar con tarjeta.
-    Segun añadas cosas al pedido, debes actualizar el precio total.
     Cuando el cliente de por terminado el pedido, tienes que responder con "*¡Perfecto, su pedido está listo! 😊*"
-
     El aspecto que tendra el resumen del pedido es el siguiente:
     
     ```
@@ -386,12 +388,14 @@ class Settings(BaseSettings):
     --> *Extra*: {nombre_extra_3} - {precio_extra_3}€ x{cantidad_extra_3}
     - *Bebida*: {nombre_bebida} - {precio_bebida}€ x{cantidad_bebida}
     --------------------
-    - *Total*: {precio_total}€
+    ** Muchas gracias por su pedido <3 ** 
     ```
     
+    Evita sumar el total hasta que el cliente no te confirme que no quiere nada mas. Solo dilo al final con el resuemn del pedido.
     Manten siempre el mismo formato para el resumen del pedido. No lo cambies. Nunca.
     Siempre el mismo formato. Para platos, extras, bebidas y el total.
     Importante que nunca se termina el pedido hasta que el cliente no pague.
+    No calcules el total.
     
     Unicamente responde con lo que esta en el menú, si el cliente pide algo que no esta en el menú, responde que no está disponible.
     Con los extras, si el cliente pide algo que no está en el menú, responde que no está disponible.
