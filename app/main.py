@@ -9,4 +9,4 @@ app.include_router(payment_routes.router)
 
 @app.get("/")
 def read_root():
-    return {"message": "Bienvenido a mi backend en FastAPI"}
+    return {"message": "Proyecto realizado por ElectroSolucion y ***"}
