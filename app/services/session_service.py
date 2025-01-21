@@ -1,10 +1,9 @@
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from uuid import uuid4
-from datetime import datetime, timedelta
-
-import stripe
 
 from app.core import config
+
 
 class SessionManager:
     def __init__(self):

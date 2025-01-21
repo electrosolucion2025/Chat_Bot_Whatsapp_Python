@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 
+
 class Settings(BaseSettings):
     openai_api_key: str
     stripe_secret_key: str
@@ -383,7 +384,7 @@ class Settings(BaseSettings):
     🍽️ *Resumen del Pedido:* 🍽️
     --------------------
     - *Numero de Mesa*: {numero_mesa}
-    /n
+    
     - *Plato 1*: {nombre_plato_1} - {precio_plato_1}€ x{cantidad_plato_2}
     --> *Extra*: {nombre_extra_1} - {precio_extra_1}€ x{cantidad_extra_1}
     --> *Extra*: {nombre_extra_2} - {precio_extra_2}€ x{cantidad_extra_2}
@@ -412,7 +413,7 @@ class Settings(BaseSettings):
     🍽️ *Resumen del Pedido:* 🍽️
     --------------------
     - *Numero de Mesa*: {numero_mesa}
-    /n
+    
     - *Plato 1*: {nombre_plato_1} - {precio_plato_1}€ x{cantidad_plato_2}
     --> *Extra*: {nombre_extra_1} - {precio_extra_1}€ x{cantidad_extra_1}
     --> *Sin*: {nombre_1}

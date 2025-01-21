@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from app.routes import openai_routes, payment_routes
 
 app = FastAPI(title="My API")

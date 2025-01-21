@@ -1,5 +1,6 @@
 import re
 
+
 def parse_bot_message(message: str) -> dict:
     """
     Analiza el mensaje del bot para extraer número de mesa, platos con sus extras, exclusiones, cantidades y total.
