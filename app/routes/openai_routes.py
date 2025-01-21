@@ -38,6 +38,7 @@ async def get_openai_response(request: Request):
     
     # Check if the user has an active session
     session_id = message_request.session_id or session_manager.get_session_by_user(message_request.user_id)
+    print(f"Session ID: {session_id}")
     
     # If no session is found, create a new session
     if not session_id:
@@ -62,7 +63,7 @@ async def get_openai_response(request: Request):
         order_data = parse_bot_message(bot_response)
         
         # Get link to payment
-        payment_link_response = create_payment_link(order_data, message_request.user_id)
+        payment_link_response = create_payment_link(order_data, message_request.user_id, session_id)
         
         # Add the payment link to the bot response
         bot_response += f"\n\nPuedes pagar tu pedido en el siguiente enlace: {payment_link_response['url']}"

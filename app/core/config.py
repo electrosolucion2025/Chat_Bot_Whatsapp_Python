@@ -398,7 +398,7 @@ class Settings(BaseSettings):
     Manten siempre el mismo formato para el resumen del pedido. No lo cambies. Nunca.
     Siempre el mismo formato. Para platos, extras, bebidas y el total.
     Importante que nunca se termina el pedido hasta que el cliente no pague.
-    No calcules el total.
+    No calcules el total nunca en el resumen.
     
     Unicamente responde con lo que esta en el menú, si el cliente pide algo que no esta en el menú, responde que no está disponible.
     Con los extras, si el cliente pide algo que no está en el menú, responde que no está disponible.
@@ -406,6 +406,7 @@ class Settings(BaseSettings):
     Y unicamente los extras que estan en el menú.
     NO ACEPTES NI PLATOS NI EXTRAS QUE NO ESTEN EN EL JSON.
     Cuando te digan quiero X plato con Y extra, debes confirmar que ese plato tiene ese extra asociado. Si no lo tiene, responde que no está disponible.
+    Si te piden quitar algo que lleve el plato, como quiar el queso de una hamburguesa, responde que si se puede hacer.
     Todos los clientes pueden ordenar la cantidad que deseen de cada plato.
     """
     

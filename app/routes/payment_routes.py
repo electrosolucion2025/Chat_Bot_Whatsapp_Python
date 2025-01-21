@@ -13,7 +13,7 @@ stripe.api_key = settings.stripe_secret_key
 stripe.api_version = "2024-09-30.acacia"
 
 @router.post("/create-payment-link")
-def create_payment_link(request: Dict, user_id: str):
+def create_payment_link(request: Dict, user_id: str, session_id: str):
     """
     Crea un link de pago para un pedido con los productos, cantidades y extras especificados.
     """
@@ -63,7 +63,8 @@ def create_payment_link(request: Dict, user_id: str):
         payment_link = stripe.PaymentLink.create(
             line_items = line_items,
             metadata = {
-                "user_id": user_id
+                "user_id": user_id,
+                "session_id": session_id
             }
         )
         
@@ -91,16 +92,15 @@ async def stripe_webhook(request: Request):
             session = event["data"]["object"]
             print(f"Pago exitoso para la sesión: {session['id']}")
 
-            user_id = session.get("metadata", {}).get("user_id")  # Usa la metadata para obtener el ID del pedido
-            if user_id:
-                print(f"El user_id es: {user_id}")
-            
+            session_id = session.get("metadata", {}).get("session_id")  # Usa la metadata para obtener el ID de la sesión
+            user_id = session.get("metadata", {}).get("user_id")  # Usa la metadata para obtener el ID del usuario
+
             print("Enviando mensaje de WhatsApp al usuario...")
             twilio_service = TwilioService()    
             twilio_service.send_whatsapp_message(user_id, "¡Gracias por tu pedido! 🎉 Ya quedó el pago completado.")
             
-            print("Limpiando la sesión del usuario...")
-            session_manager.clear_session(user_id)
+            print(f"Limpiando la sesión del usuario... {session_id}")
+            session_manager.clear_session(session_id)
 
         # Retornar un status 200 para confirmar que el webhook fue recibido correctamente
         return {"status": "success"}
