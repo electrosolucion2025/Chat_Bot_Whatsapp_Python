@@ -1,6 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+
+from app.routes.payment_routes import create_payment_link
 from app.services.openai_service import build_prompt, generate_response, validate_history
+from app.services.order_parser_service import parse_bot_message
 from app.services.session_service import session_manager
 
 router = APIRouter(prefix="/openai", tags=["OpenAI"])
@@ -37,6 +40,17 @@ def get_openai_response(request: MessageRequest):
     
     # Generate the response using OpenAI
     bot_response = generate_response(prompt)
+    
+    # Check if the bot response contains "Resumen del Pedido:"
+    if "Resumen del Pedido:" in bot_response:
+        # Parse the bot response to get the order summary
+        order_data = parse_bot_message(bot_response)
+        
+        # Get link to payment
+        payment_link_response = create_payment_link(order_data)
+        
+        # Add the payment link to the bot response
+        bot_response += f"\n\nPuedes pagar tu pedido en el siguiente enlace: {payment_link_response['url']}"
     
     # Add the user message and bot response to the session
     session_manager.add_to_session(session_id, request.user_id, request.message, bot_response)

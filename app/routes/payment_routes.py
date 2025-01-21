@@ -1,6 +1,6 @@
 import stripe
 
-from typing import Optional
+from typing import Dict, Optional
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
@@ -11,45 +11,61 @@ router = APIRouter(prefix="/payment", tags=["Stripe"])
 stripe.api_key = settings.stripe_secret_key
 stripe.api_version = "2024-09-30.acacia"
 
-class PaymentLinkRequest(BaseModel):
-    product_name: str
-    amount: float
-    redirect_url: Optional[str] = "http://localhost:3000/success"
-    
 @router.post("/create-payment-link")
-async def create_payment_link(request: PaymentLinkRequest):
+def create_payment_link(request: Dict):
     """
-    Create a payment link for a product with the specified amount.
+    Crea un link de pago para un pedido con los productos, cantidades y extras especificados.
     """
     try:
-        # Convert the amount to cents
-        amount = int(request.amount * 100)
-        
-        # Create Price object
-        price = stripe.Price.create(
-            unit_amount=amount,
-            currency="eur",
-            product_data = {
-                "name": request.product_name
-            }
-        )
-        
-        # Create a payment link using Stripe
-        payment_link = stripe.PaymentLink.create(
-            line_items = [
-                {
-                    "price": price.id,
+        line_items = []
+
+        # Iterate over each product in the order
+        for dish in request["dishes"]:
+            # First, create the product for the main dish
+            product = stripe.Product.create(
+                name=dish["name"],
+            )
+
+            # Now create the price for the main dish
+            price = stripe.Price.create(
+                unit_amount=int(dish["price"] * 100),  # Convert to cents
+                currency="eur",
+                product=product.id  # Associate the price with the product
+            )
+
+            # Add the main dish to the line items
+            line_items.append({
+                "price": price.id,  # Use the ID of the main dish price
+                "quantity": dish.get("quantity", 1)  # Use the quantity if provided, default to 1
+            })
+            
+            # Iterate over each extra in the dish
+            for extra in dish["extras"]:
+                # Create a product for the extra
+                extra_product = stripe.Product.create(
+                    name=f"{dish['name']} - {extra['name']}",
+                )
+                
+                extra_price = stripe.Price.create(
+                    unit_amount=int(extra["price"] * 100),  # Convert to cents
+                    currency="eur",
+                    product=extra_product.id  # Associate the price with the product
+                )
+
+                # Add the extra to the line items
+                line_items.append({
+                    "price": extra_price.id,  # Use the ID of the extra price
                     "quantity": 1
-                },
-            ],
-            after_completion = {
-                "type": "redirect",
-                "redirect": { "url": request.redirect_url }
-            }
+                })
+
+        # Create the payment link
+        payment_link = stripe.PaymentLink.create(
+            line_items=line_items
         )
         
-        # Return the payment link
-        return { "url": payment_link.url }
+        # Return the URL of the payment link
+        return {"url": payment_link.url}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
@@ -60,12 +76,12 @@ async def stripe_webhook(request: Request):
     endpoint_secret = "whsec_9617e1eac9cf1e1da160d96caa93ddc1aefb95de15bab74d9803d8d4613b8d6d"
 
     try:
-        # Verificar el evento
+        # Verify the event by constructing it
         event = stripe.Webhook.construct_event(
             payload, sig_header, endpoint_secret
         )
 
-        # Manejar diferentes tipos de eventos
+        # Handle the event
         if event["type"] == "checkout.session.completed":
             session = event["data"]["object"]
             print(f"Pago exitoso para: {session['id']}")
