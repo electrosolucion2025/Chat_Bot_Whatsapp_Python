@@ -57,7 +57,7 @@ async def create_payment_link(request: PaymentLinkRequest):
 async def stripe_webhook(request: Request):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
-    endpoint_secret = "whsec_9617e1eac9cf1e1da160d96caa93ddc1aefb95de15bab74d9803d8d4613b8d6d"
+    endpoint_secret = "secret_key"
 
     try:
         # Verificar el evento
