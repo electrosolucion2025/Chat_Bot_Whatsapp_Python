@@ -72,7 +72,7 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
     if not active_session_id:
         active_session_id = session_manager.create_session(user_id)
 
-    # VAlidate the session history
+    # Validate the session history
     history = session_manager.get_session(active_session_id)
     if not validate_history(history):
         raise HTTPException(status_code=400, detail="Invalid session history")
@@ -83,17 +83,11 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
 
     # Check if the bot response contains the order summary
     if "Resumen del Pedido:" in bot_response:
+        # Parse the order data from the bot response
         order_data = parse_bot_message(bot_response)
 
-        existing_payment_link = session_manager.get_payment_link(active_session_id)
-        if existing_payment_link:
-            session_manager.clear_payment_link(active_session_id)
-
-        payment_link_response = create_payment_link(order_data, user_id, active_session_id)
-
-        # Add the payment link to the session
-        session_manager.add_payment_link(active_session_id, payment_link_response["url"])
-        bot_response += f"\n\nPuedes pagar tu pedido en el siguiente enlace: {payment_link_response['url']}"
+        # Manage the payment link
+        bot_response = manage_payment_link(bot_response, active_session_id, order_data, user_id)
 
     # Add the message to the session
     session_manager.add_to_session(active_session_id, user_id, message, bot_response)
@@ -109,3 +103,26 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
         "session_id": active_session_id,
         "bot": bot_response
     }
+    
+def manage_payment_link(bot_response: str, session_id: str, order_data: dict, user_id: str) -> str:
+    """
+    Manage the payment link in the bot response
+    """
+    # Verificar si ya hay un enlace de pago en el bot_response
+    payment_link_prefix = "https://buy.stripe.com/"
+    lines = bot_response.split("\n")
+    bot_response = "\n".join([line for line in lines if payment_link_prefix not in line])
+
+    # Obtener el enlace existente en la sesión
+    existing_payment_link = session_manager.get_payment_link(session_id)
+    if existing_payment_link:
+        session_manager.clear_payment_link(session_id)
+
+    # Crear un nuevo enlace de pago
+    payment_link_response = create_payment_link(order_data, user_id, session_id)
+    session_manager.add_payment_link(session_id, payment_link_response["url"])
+
+    # Agregar el nuevo enlace al bot_response
+    bot_response += f"\n\nPuedes pagar tu pedido en el siguiente enlace: {payment_link_response['url']}"
+    
+    return bot_response

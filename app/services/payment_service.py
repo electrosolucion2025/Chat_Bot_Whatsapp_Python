@@ -10,17 +10,18 @@ stripe.api_version = "2024-09-30.acacia"
 
 def create_stripe_payment_link(order_data: Dict, user_id: str, session_id: str) -> Dict[str, str]:
     """
-    Build the line items for the order, create Stripe Products/Prices
-    and generate a Payment Link.
+    Build the line items for the order, including dishes and drinks,
+    create Stripe Products/Prices, and generate a Payment Link.
     """
     try:
         line_items = []
 
-        for dish in order_data["dishes"]:
+        # Procesar platos (dishes)
+        for dish in order_data.get("dishes", []):
             # Crear producto principal y precio
             product = stripe.Product.create(name=dish["name"])
             price = stripe.Price.create(
-                unit_amount=int(dish["price"] * 100),
+                unit_amount=int(dish["price"] * 100),  # Convertir a céntimos
                 currency="eur",
                 product=product.id
             )
@@ -30,7 +31,7 @@ def create_stripe_payment_link(order_data: Dict, user_id: str, session_id: str) 
             })
 
             # Procesar extras
-            for extra in dish["extras"]:
+            for extra in dish.get("extras", []):
                 extra_product = stripe.Product.create(name=f"{dish['name']} - {extra['name']}")
                 extra_price = stripe.Price.create(
                     unit_amount=int(extra["price"] * 100),
@@ -43,12 +44,12 @@ def create_stripe_payment_link(order_data: Dict, user_id: str, session_id: str) 
                 })
 
             # Procesar exclusiones
-            for exclusion in dish["exclusions"]:
+            for exclusion in dish.get("exclusions", []):
                 exclusion_product = stripe.Product.create(
                     name=f"{dish['name']} - Sin {exclusion['name']}",
                 )
                 exclusion_price = stripe.Price.create(
-                    unit_amount=0,
+                    unit_amount=0,  # Exclusiones sin costo
                     currency="eur",
                     product=exclusion_product.id
                 )
@@ -56,6 +57,20 @@ def create_stripe_payment_link(order_data: Dict, user_id: str, session_id: str) 
                     "price": exclusion_price.id,
                     "quantity": 1
                 })
+
+        # Procesar bebidas (drinks)
+        for drink in order_data.get("drinks", []):
+            # Crear producto principal y precio
+            product = stripe.Product.create(name=drink["name"])
+            price = stripe.Price.create(
+                unit_amount=int(drink["price"] * 100),  # Convertir a céntimos
+                currency="eur",
+                product=product.id
+            )
+            line_items.append({
+                "price": price.id,
+                "quantity": drink.get("quantity", 1)
+            })
 
         # Crear el Payment Link
         payment_link = stripe.PaymentLink.create(

@@ -16,6 +16,59 @@ class Settings(BaseSettings):
     {
         "categories": [
             {
+                "name": "Bebidas",
+                "items": [
+                    {
+                        "name": "Coca Cola",
+                        "ingredients": "Refresco",
+                        "price": 2.2,
+                        "extras": [],
+                    },
+                    {
+                        "name": "Coca Cola Zero",
+                        "ingredients": "Refresco sin azúcar",
+                        "price": 2.2,
+                        "extras": [],
+                    },
+                    {
+                        "name": "Fanta Naranja",
+                        "ingredients": "Refresco de naranja",
+                        "price": 2.2,
+                        "extras": [],
+                    },
+                    {
+                        "name": "7Up",
+                        "ingredients": "Refresco de lima-limón",
+                        "price": 2.2,
+                        "extras": [],
+                    },
+                    {
+                        "name": "Agua",
+                        "ingredients": "Agua natural",
+                        "price": 1.4,
+                        "extras": [],
+                    },
+                    {
+                        "name": "Tinto de Verano",
+                        "ingredients": "Vino tinto con gaseosa",
+                        "price": 1.9,
+                        "extras": [],
+                    },
+                    {
+                        "name": "Caña Cruzcampo",
+                        "ingredients": "Cerveza",
+                        "price": 1.7,
+                        "extras": [],
+                    },
+                    {
+                        "name": "Estrella Galicia",
+                        "ingredients": "Cerveza premium",
+                        "price": 1.9,
+                        "extras": [],
+                    }
+                ]
+            },
+            {
                 "name": "Entrantes",
                 "items": [
                     {
@@ -355,62 +408,9 @@ class Settings(BaseSettings):
                             { "name": "Bacon", "price": 1.2 },
                             { "name": "Aguacate", "price": 1.5 }
                         ]
-                    },
-                ]
-            },
-            {
-                "name": "Bebidas",
-                "items": [
-                    {
-                        "name": "Coca Cola",
-                        "ingredients": "Refresco",
-                        "price": 2.2,
-                        "extras": [],
-                    },
-                    {
-                        "name": "Coca Cola Zero",
-                        "ingredients": "Refresco sin azúcar",
-                        "price": 2.2,
-                        "extras": [],
-                    },
-                    {
-                        "name": "Fanta Naranja",
-                        "ingredients": "Refresco de naranja",
-                        "price": 2.2,
-                        "extras": [],
-                    },
-                    {
-                        "name": "7Up",
-                        "ingredients": "Refresco de lima-limón",
-                        "price": 2.2,
-                        "extras": [],
-                    },
-                    {
-                        "name": "Agua",
-                        "ingredients": "Agua natural",
-                        "price": 1.4,
-                        "extras": [],
-                    },
-                    {
-                        "name": "Tinto de Verano",
-                        "ingredients": "Vino tinto con gaseosa",
-                        "price": 1.9,
-                        "extras": [],
-                    },
-                    {
-                        "name": "Caña Cruzcampo",
-                        "ingredients": "Cerveza",
-                        "price": 1.7,
-                        "extras": [],
-                    },
-                    {
-                        "name": "Estrella Galicia",
-                        "ingredients": "Cerveza premium",
-                        "price": 1.9,
-                        "extras": [],
                     }
                 ]
-            },
+            }
         ]
     }
     
@@ -421,6 +421,8 @@ class Settings(BaseSettings):
     Responde de manera profesional (utiliza emoticonos para ser mas agradable).
     Antes de ofrecer algo, comprueba que exista en el menu. NO ofrezcas nada que no esté en el menu.
     Toma el pedido de los clientes.
+
+    Cuando pregunten por el menu, di siempre las categorias principales primero, bebidas, entrantes, etc...    
     
     Al inicio de la conversacion tienes que preguntar el numero de mesa donde se encuentra el cliente.
     Es obligatorio, sin numero de mesa no se puede seguir con la conversacion.
@@ -430,10 +432,11 @@ class Settings(BaseSettings):
     
     Cuando el pedido esté listo intenta mostrar un resumen del pedido y el precio total de manera llamativa y amigable.
     Si te preguntan por la forma de pago, debes decirles que se debe pagar con tarjeta.
+    
     Cuando el cliente de por terminado el pedido, tienes que responder con "*¡Perfecto, su pedido está listo! 😊*"
+    Antes de proceder a mostrar este resuemen del pedido, asegurate de que el cliente no quiera añadir nada más.
     El aspecto que tendra el resumen del pedido es el siguiente:
     
-    ```
     🍽️ *Resumen del Pedido:* 🍽️
     --------------------
     - *Numero de Mesa*: {numero_mesa}
@@ -446,15 +449,16 @@ class Settings(BaseSettings):
     - *Bebida*: {nombre_bebida} - {precio_bebida}€ x{cantidad_bebida}
     --------------------
     ** Muchas gracias por su pedido <3 ** 
-    ```
     
-    Evita sumar el total hasta que el cliente no te confirme que no quiere nada mas. Solo dilo al final con el resuemn del pedido.
+    Solo escribe el resumen del pedido cuando el cliente de por terminado el pedido.
     Manten siempre el mismo formato para el resumen del pedido. No lo cambies. Nunca.
-    Siempre el mismo formato. Para platos, extras, bebidas y el total.
+    Siempre el mismo formato. Para platos, extras, bebidas...
+    
     Importante que nunca se termina el pedido hasta que el cliente no pague.
-    No calcules el total nunca en el resumen.
     
     Unicamente responde con lo que esta en el menú, si el cliente pide algo que no esta en el menú, responde que no está disponible.
+    Cuando te digan que quieren un extra con X plato, revisa que ese plato tenga ese extra disponible. 
+    Si no lo tiene, responde que no está disponible. Si lo tiene, que confirmen que quieren ese extra.
     Con los extras, si el cliente pide algo que no está en el menú, responde que no está disponible.
     Los extras unicamente se pueden añadir a los platos que tienen extras disponibles.
     Y unicamente los extras que estan en el menú.
