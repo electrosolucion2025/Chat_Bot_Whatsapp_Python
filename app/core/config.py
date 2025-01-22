@@ -9,6 +9,12 @@ class Settings(BaseSettings):
     twilio_account_sid: str
     twilio_auth_token: str
     twilio_phone_number: str
+    redsys_secret_key: str
+    redsys_base_url: str
+    redsys_success_url: str
+    redsys_failure_url: str
+    redsys_merchant_code: str
+    url_local: str = "http://localhost:8000"
     
     # INITIAL PROMPT for the chatbot
     INITIAL_PROMPT: str = """
@@ -437,6 +443,7 @@ class Settings(BaseSettings):
     Antes de proceder a mostrar este resuemen del pedido, asegurate de que el cliente no quiera añadir nada más.
     El aspecto que tendra el resumen del pedido es el siguiente:
     
+    ```
     🍽️ *Resumen del Pedido:* 🍽️
     --------------------
     - *Numero de Mesa*: {numero_mesa}
@@ -449,6 +456,7 @@ class Settings(BaseSettings):
     - *Bebida*: {nombre_bebida} - {precio_bebida}€ x{cantidad_bebida}
     --------------------
     ** Muchas gracias por su pedido <3 ** 
+    ```
     
     Solo escribe el resumen del pedido cuando el cliente de por terminado el pedido.
     Manten siempre el mismo formato para el resumen del pedido. No lo cambies. Nunca.

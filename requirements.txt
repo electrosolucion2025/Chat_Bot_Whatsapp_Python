@@ -25,6 +25,7 @@ numpy==2.2.2
 openai==1.59.9
 pillow==11.1.0
 propcache==0.2.1
+pycryptodome==3.21.0
 pydantic==2.10.5
 pydantic-settings==2.7.1
 pydantic_core==2.27.2
@@ -33,6 +34,7 @@ python-barcode==0.15.1
 python-dotenv==1.0.1
 python-escpos==3.1
 python-multipart==0.0.20
+python-redsys==1.2.0
 PyYAML==6.0.2
 qrcode==8.0
 requests==2.32.3

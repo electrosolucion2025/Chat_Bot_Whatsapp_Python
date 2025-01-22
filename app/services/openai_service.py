@@ -1,11 +1,12 @@
 from typing import Dict, Optional
+from urllib.parse import urlencode
 
 import openai
 from fastapi import HTTPException
 
 from app.core.config import settings
-from app.routes.payment_routes import create_payment_link
-from app.services.order_parser_service import parse_bot_message
+from app.routes.payment_routes import create_payment_link, render_payment_form, start_payment
+from app.services.order_parser_service import parse_bot_message_redsys
 from app.services.session_service import session_manager
 from app.services.twilio_service import TwilioService
 
@@ -84,10 +85,26 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
     # Check if the bot response contains the order summary
     if "Resumen del Pedido:" in bot_response:
         # Parse the order data from the bot response
-        order_data = parse_bot_message(bot_response)
+        order_data = parse_bot_message_redsys(bot_response)
+        
+        # Extract the order ID and total
+        order_id = order_data.get("order_id")  # Extrae el ID del pedido
+        amount = float(order_data.get("total", 0))  # Extrae el total, asegurándose de que sea float
 
-        # Manage the payment link
-        bot_response = manage_payment_link(bot_response, active_session_id, order_data, user_id)
+        # Params for the payment link
+        params = {
+            "order_id": order_id,
+            "amount": amount,
+            "user_id": user_id
+        }
+        
+        # Generate the payment link
+        base_url = f"{settings.url_local}/payment/payment-form"
+        query_string = urlencode(params)      
+        payment_url = f"{base_url}?{query_string}"
+
+        # Manage the payment link in the bot response
+        bot_response = manage_payment_link_redsys(bot_response, session_id, payment_url)
 
     # Add the message to the session
     session_manager.add_to_session(active_session_id, user_id, message, bot_response)
@@ -104,7 +121,7 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
         "bot": bot_response
     }
     
-def manage_payment_link(bot_response: str, session_id: str, order_data: dict, user_id: str) -> str:
+def manage_payment_link_stripe(bot_response: str, session_id: str, order_data: dict, user_id: str) -> str:
     """
     Manage the payment link in the bot response
     """
@@ -124,5 +141,27 @@ def manage_payment_link(bot_response: str, session_id: str, order_data: dict, us
 
     # Agregar el nuevo enlace al bot_response
     bot_response += f"\n\nPuedes pagar tu pedido en el siguiente enlace: {payment_link_response['url']}"
+    
+    return bot_response
+
+def manage_payment_link_redsys(bot_response: str,session_id: str, payment_url: str) -> str:
+    """
+    Manage the payment link in the bot response
+    """
+    # Verificar si ya hay un enlace de pago en el bot_response
+    payment_link_prefix = f"{settings.url_local}/payment/payment-form/"
+    lines = bot_response.split("\n")
+    bot_response = "\n".join([line for line in lines if payment_link_prefix not in line])
+
+    # Obtener el enlace existente en la sesión
+    existing_payment_link = session_manager.get_payment_link(session_id)
+    if existing_payment_link:
+        session_manager.clear_payment_link(session_id)
+
+    # Crear un nuevo enlace de pago
+    session_manager.add_payment_link(session_id, payment_url)
+
+    # Agregar el nuevo enlace al bot_response
+    bot_response += f"\n\nPuedes pagar tu pedido en el siguiente enlace: \n\n{payment_url}"
     
     return bot_response
