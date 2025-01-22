@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+import uuid
 
 def parse_bot_message_stripe(message: str) -> dict:
     """
@@ -158,9 +159,16 @@ def parse_bot_message_redsys(message: str) -> dict:
         # Añadir el costo de la bebida al total
         total_price += float(drink_price) * int(quantity)
 
-    # Generar un número de pedido único (máximo 12 caracteres)
+    # Generar un timestamp reducido (8 caracteres)
     now = datetime.now()
-    order_id = now.strftime("%y%m%d%H%M")  # Año, mes, día, hora y minuto (12 caracteres)
+    timestamp = now.strftime("%y%m%d%H")  # Año, mes, día, hora (8 caracteres)
+
+    # Generar un número único a partir de UUID
+    uuid_numeric = int(uuid.uuid4().int)  # Convertir UUID a un entero
+    uuid_suffix = str(uuid_numeric)[-4:]  # Tomar los últimos 4 dígitos
+
+    # Combinar timestamp reducido y sufijo
+    order_id = timestamp + uuid_suffix
 
     # Retornar los datos parseados
     return {
