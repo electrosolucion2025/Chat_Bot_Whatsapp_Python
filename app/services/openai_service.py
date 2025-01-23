@@ -1,16 +1,24 @@
+import os
+import time
+import openai
+import requests
+import subprocess
+
 from typing import Dict, Optional
 from urllib.parse import urlencode
-
-import openai
 from fastapi import HTTPException
+from requests.auth import HTTPBasicAuth
 
 from app.core.config import settings
-from app.routes.payment_routes import create_payment_link, render_payment_form, start_payment
+from app.routes.payment_routes import create_payment_link
 from app.services.order_parser_service import parse_bot_message_redsys
 from app.services.session_service import session_manager
 from app.services.twilio_service import TwilioService
 
 openai.api_key = settings.openai_api_key
+client = openai.Client(
+    api_key=settings.openai_api_key,
+)
 
 def build_prompt(history: list[dict], user_message: str) -> str:
     """
@@ -165,3 +173,77 @@ def manage_payment_link_redsys(bot_response: str,session_id: str, payment_url: s
     bot_response += f"\n\nPuedes pagar tu pedido en el siguiente enlace: \n\n{payment_url}"
     
     return bot_response
+
+async def download_audio_from_twilio(media_url: str, user_id: str) -> str:
+    """
+    Downloads an audio file from Twilio's MediaUrl and saves it in a specific directory within the project.
+    :param media_url: URL of the audio file.
+    :return: Path to the downloaded file.
+    """
+    try:
+        response = requests.get(
+            media_url,
+            auth=HTTPBasicAuth(settings.twilio_account_sid, settings.twilio_auth_token)
+        )
+        response.raise_for_status()
+        
+        # Define the directory to save the audio files
+        audio_dir = os.path.join(os.path.dirname(__file__), 'audio_files')
+        os.makedirs(audio_dir, exist_ok=True)
+        
+        # Define the file path
+        user_id_just_numbers = user_id.replace("whatsapp:+", "")
+        unique_filename = f"downloaded_audio_{user_id_just_numbers}_{int(time.time())}.mp3"
+        file_path = os.path.join(audio_dir, unique_filename)
+        
+        # Save the file
+        try:
+            with open(file_path, 'wb') as audio_file:
+                audio_file.write(response.content)
+            
+            # Check the duration of the audio file using ffmpeg
+            result = subprocess.run(
+                ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", file_path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
+            )
+            duration = float(result.stdout)
+            max_duration_seconds = 30  # Set the maximum duration in seconds
+            if duration > max_duration_seconds:
+                os.remove(file_path)
+                TwilioService().send_whatsapp_message(user_id, "El archivo de audio excede la duración máxima de 30 segundos.")
+                raise HTTPException(status_code=400, detail="Audio file exceeds maximum duration of 30 seconds.")
+            
+            return file_path
+        
+        except Exception as e:
+            print(f"Error saving audio file: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error saving audio file: {e}")
+    
+    except Exception as e:
+        print(f"Error downloading audio from twilio: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error downloading audio from twilio: {e}")
+        
+async def transcribe_audio_with_whisper(audio_path: str) -> str:
+    """
+    Transcribe the audio file using OpenAI's Whisper API.
+    :param audio_path: Path to the audio file.
+    :return: Transcribed text.
+    """
+    try:
+        # Open the audio file
+        with open(audio_path, "rb") as audio_file:
+            # Prepare the data for the Whisper API
+            response = client.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file,
+            )
+            
+            # Return the transcribed text
+            transcribed_text = response.text
+            
+            return transcribed_text
+    
+    except Exception as e:
+        print(f"Error transcribing audio: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error transcribing audio: {e}")
