@@ -2,7 +2,6 @@ import os
 import time
 import openai
 import requests
-from pydub import AudioSegment
 
 from typing import Dict, Optional
 from urllib.parse import urlencode
@@ -196,19 +195,10 @@ async def download_audio_from_twilio(media_url: str, user_id: str) -> str:
         unique_filename = f"downloaded_audio_{user_id_just_numbers}_{int(time.time())}.mp3"
         file_path = os.path.join(audio_dir, unique_filename)
         
-        # Save the file
         try:
+            # Save the file
             with open(file_path, 'wb') as audio_file:
                 audio_file.write(response.content)
-            
-            # Check the duration of the audio file using pydub
-            audio = AudioSegment.from_file(file_path)
-            duration = len(audio) / 1000.0  # Duration in seconds
-            max_duration_seconds = 30  # Set the maximum duration in seconds
-            if duration > max_duration_seconds:
-                os.remove(file_path)
-                TwilioService().send_whatsapp_message(user_id, "El archivo de audio excede la duración máxima de 30 segundos.")
-                raise HTTPException(status_code=400, detail="Audio file exceeds maximum duration of 30 seconds.")
             
             return file_path
         
