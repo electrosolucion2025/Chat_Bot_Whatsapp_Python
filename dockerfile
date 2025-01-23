@@ -1,22 +1,19 @@
 FROM python:3.9-slim
 
-# Instalar dependencias necesarias
-RUN apt-get update && apt-get install -y wget
+# Actualizar el sistema e instalar ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg
 
-# Descargar e instalar una versión estática de FFmpeg (que incluye ffprobe)
-RUN wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz && \
-    tar -xvf ffmpeg-release-i686-static.tar.xz && \
-    mv ffmpeg-*/ffmpeg /usr/local/bin/ && \
-    mv ffmpeg-*/ffprobe /usr/local/bin/ && \
-    rm -rf ffmpeg-release-i686-static.tar.xz ffmpeg-*
+# Asegurarse de que ffmpeg y ffprobe estén en el PATH
+ENV PATH="/usr/local/bin:${PATH}"
 
-# Verificar si ffprobe está disponible
-RUN ffprobe -version
+# Verificar si ffmpeg y ffprobe están en el PATH
+RUN which ffmpeg
+RUN which ffprobe
 
 # Copiar el código fuente de tu aplicación
 COPY . /app
 
-# Instalar dependencias del proyecto
+# Instalar las dependencias del proyecto
 WORKDIR /app
 RUN pip install -r requirements.txt
 
