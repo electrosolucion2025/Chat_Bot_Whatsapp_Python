@@ -31,6 +31,7 @@ pycryptodome==3.21.0
 pydantic==2.10.5
 pydantic-settings==2.7.1
 pydantic_core==2.27.2
+pydub==0.25.1
 PyJWT==2.10.1
 python-barcode==0.15.1
 python-dotenv==1.0.1

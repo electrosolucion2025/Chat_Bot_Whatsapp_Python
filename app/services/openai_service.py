@@ -2,7 +2,7 @@ import os
 import time
 import openai
 import requests
-import subprocess
+from pydub import AudioSegment
 
 from typing import Dict, Optional
 from urllib.parse import urlencode
@@ -201,13 +201,9 @@ async def download_audio_from_twilio(media_url: str, user_id: str) -> str:
             with open(file_path, 'wb') as audio_file:
                 audio_file.write(response.content)
             
-            # Check the duration of the audio file using ffmpeg
-            result = subprocess.run(
-                ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", file_path],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT
-            )
-            duration = float(result.stdout)
+            # Check the duration of the audio file using pydub
+            audio = AudioSegment.from_file(file_path)
+            duration = len(audio) / 1000.0  # Duration in seconds
             max_duration_seconds = 30  # Set the maximum duration in seconds
             if duration > max_duration_seconds:
                 os.remove(file_path)
