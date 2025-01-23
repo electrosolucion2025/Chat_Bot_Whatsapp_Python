@@ -55,9 +55,10 @@ class SessionManager:
         if not session:
             raise ValueError("Invalid session ID")
         
+        # TODO: VOLVER A ACTIVAR ESTO PARA LIMITAR LOS MENSAJES
         # Verify the user ID
-        if not self.check_message_limit(user_id):
-            raise ValueError("Message limit exceeded. Please try again later.")
+        # if not self.check_message_limit(user_id):
+        #     raise ValueError("Message limit exceeded. Please try again later.")
         
         # Update the session data
         session["history"].append({"user": user_message, "bot": bot_response})
