@@ -106,7 +106,22 @@ class SessionManager:
         """Clear the payment link from the session."""
         if session_id in self.sessions and "payment_link" in self.sessions[session_id]:
             del self.sessions[session_id]["payment_link"]
-
+            
+    def add_order_data(self, session_id: str, order_data: Dict):
+        """Adds the order data to the session."""
+        if session_id not in self.sessions:
+            raise ValueError("Invalid session ID")
+        
+        self.sessions[session_id]["order_data"] = order_data
+        
+    def get_order_data(self, session_id: str) -> Optional[Dict]:
+        """Returns the order data for a given session ID."""
+        return self.sessions.get(session_id, {}).get("order_data")
+    
+    def clear_order_data(self, session_id: str):
+        """Clear the order data from the session."""
+        if session_id in self.sessions and "order_data" in self.sessions[session_id]:
+            del self.sessions[session_id]["order_data"]
             
 # Global instance of the SessionManager
 session_manager = SessionManager()

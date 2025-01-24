@@ -9,6 +9,7 @@ from decimal import Decimal as D, ROUND_HALF_UP
 from fastapi import HTTPException
 
 from app.core.config import settings
+from app.services.email_service import EmailService
 
 stripe.api_key = settings.stripe_secret_key
 stripe.api_version = "2024-09-30.acacia"
@@ -137,3 +138,130 @@ class PaymentServiceRedsys:
             return response
         except Exception as e:
             raise ValueError(f"Error al validar la respuesta: {e}")
+
+def send_payment_confirmation(to_email: str, order_data: dict):
+    """
+    Sends a payment confirmation email to the user with a styled ticket-like format,
+    including the table number and customer phone number formatted nicely.
+    """
+    def format_phone_number(phone: str) -> str:
+        """
+        Formats a phone number into a human-readable format.
+        Example: "whatsapp:+34623288679" -> "+34 623 28 86 79"
+        """
+        # Elimina el prefijo "whatsapp:" si existe
+        if phone.startswith("whatsapp:+"):
+            phone = phone.replace("whatsapp:+", "")
+        
+        # Formatea el número
+        if len(phone) > 3:
+            return f"+{phone[0:2]} {phone[2:5]} {phone[5:7]} {phone[7:9]} {phone[9:]}"
+        return phone  # Si no es un número estándar, lo devuelve como está
+
+    subject = f"Confirmación de Pago - Pedido #{order_data.get('order_id')}"
+    
+    # Datos
+    table_number = order_data.get("table_number", "N/A")  # Número de mesa
+    raw_customer_phone = order_data.get("user_id", "N/A")  # Teléfono del cliente
+    customer_phone = format_phone_number(raw_customer_phone)  # Formatear teléfono
+
+    # HTML con estilo para el ticket
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative;">
+        <!-- Teléfono del cliente -->
+        <p style="position: absolute; top: 16px; right: 16px; font-size: 0.9em; color: #555; margin: 0;">
+            <strong style="color: #007BFF;">Teléfono cliente:</strong> {customer_phone}
+        </p>
+
+        <!-- Encabezado -->
+        <h1 style="text-align: center; color: #007BFF;">¡Gracias por tu pedido!</h1>
+        
+        <!-- Número de mesa -->
+        <p style="text-align: center; font-size: 1.2em; color: #555;">
+            Mesa: <strong style="color: #333;">{table_number}</strong>
+        </p>
+        <p style="text-align: center;">Aquí tienes los detalles del pedido:</p>
+        
+        <!-- Tabla de productos -->
+        <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+            <thead>
+                <tr style="background-color: #f4f4f4; border-bottom: 1px solid #ddd;">
+                    <th style="padding: 8px; text-align: left;">Producto</th>
+                    <th style="padding: 8px; text-align: center;">Cantidad</th>
+                    <th style="padding: 8px; text-align: right;">Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                {generate_table_rows_with_extras(order_data.get("dishes", []), order_data.get("drinks", []))}
+            </tbody>
+        </table>
+        
+        <!-- Total -->
+        <p style="text-align: right; font-size: 1.2em; margin-top: 16px;">
+            <strong>Total: {order_data.get("total", 0)} €</strong>
+        </p>
+        
+        <!-- Pie de página -->
+        <p style="text-align: center; margin-top: 32px; font-size: 0.9em; color: #555;">
+            ¡Esperamos que estés contento!<br>
+            Si tienes alguna pregunta, no dudes en contactarnos.
+        </p>
+    </div>
+    """
+    
+    # Servicio de envío de email
+    email_service = EmailService()
+    email_service.send_email(to_email, subject, html_content)
+
+
+def generate_table_rows_with_extras(dishes: list, drinks: list) -> str:
+    """
+    Generates HTML table rows for the dishes and drinks, including extras and exclusions.
+    """
+    rows = ""
+
+    # Procesar los platos
+    for dish in dishes:
+        rows += f"""
+        <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">{dish['name']}</td>
+            <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">{dish['quantity']}</td>
+            <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">{dish['price']} €</td>
+        </tr>
+        """
+
+        # Procesar los extras si existen
+        if "extras" in dish and dish["extras"]:
+            extras = ", ".join(
+                [f"{extra['name']} (+{extra['price']} €)" for extra in dish["extras"]]
+            )
+            rows += f"""
+            <tr>
+                <td colspan="3" style="padding: 4px 8px; font-size: 0.9em; color: #555; border-bottom: 1px solid #ddd;">
+                    <em>Extras: {extras}</em>
+                </td>
+            </tr>
+            """
+
+        # Procesar las exclusiones si existen
+        if "exclusions" in dish and dish["exclusions"]:
+            exclusions = ", ".join([exclusion["name"] for exclusion in dish["exclusions"]])
+            rows += f"""
+            <tr>
+                <td colspan="3" style="padding: 4px 8px; font-size: 0.9em; color: #555; border-bottom: 1px solid #ddd;">
+                    <em>Sin: {exclusions}</em>
+                </td>
+            </tr>
+            """
+
+    # Procesar las bebidas
+    for drink in drinks:
+        rows += f"""
+        <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">{drink['name']}</td>
+            <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">{drink['quantity']}</td>
+            <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">{drink['price']} €</td>
+        </tr>
+        """
+
+    return rows

@@ -94,6 +94,12 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
         # Parse the order data from the bot response
         order_data = parse_bot_message_redsys(bot_response)
         
+        # Add user phone number to the order data
+        order_data["user_id"] = user_id
+        
+        # Add the order data to the session
+        session_manager.add_order_data(active_session_id, order_data)
+        
         # Extract the order ID and total
         order_id = order_data.get("order_id")  # Extrae el ID del pedido
         amount = float(order_data.get("total", 0))  # Extrae el total, asegurándose de que sea float
@@ -203,11 +209,9 @@ async def download_audio_from_twilio(media_url: str, user_id: str) -> str:
             return file_path
         
         except Exception as e:
-            print(f"Error saving audio file: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Error saving audio file: {e}")
     
     except Exception as e:
-        print(f"Error downloading audio from twilio: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error downloading audio from twilio: {e}")
         
 async def transcribe_audio_with_whisper(audio_path: str) -> str:
@@ -231,5 +235,4 @@ async def transcribe_audio_with_whisper(audio_path: str) -> str:
             return transcribed_text
     
     except Exception as e:
-        print(f"Error transcribing audio: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error transcribing audio: {e}")

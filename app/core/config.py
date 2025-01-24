@@ -9,12 +9,15 @@ class Settings(BaseSettings):
     twilio_account_sid: str
     twilio_auth_token: str
     twilio_phone_number: str
+    twilio_sendgrid_api_key: str
     redsys_secret_key: str
     redsys_base_url: str
     redsys_success_url: str
     redsys_failure_url: str
     redsys_merchant_code: str
     url_local: str = "http://localhost:8000"
+    email_sender: str
+    email_company: str
     
     # INITIAL PROMPT for the chatbot
     INITIAL_PROMPT: str = """
