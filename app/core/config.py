@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     port: int = 8000
     email_sender: str
     email_company: str
-    redis_url_railway: str
+    redis_url: str
     
     # INITIAL PROMPT for the chatbot
     INITIAL_PROMPT: str = """
