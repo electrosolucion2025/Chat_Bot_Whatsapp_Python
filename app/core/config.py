@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     redsys_notification_url: str
     redsys_merchant_code: str
     url_local: str = "http://localhost:8000"
+    port: int = 8000
     email_sender: str
     email_company: str
     redis_url_railway: str
