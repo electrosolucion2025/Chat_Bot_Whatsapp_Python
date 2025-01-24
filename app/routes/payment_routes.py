@@ -9,7 +9,7 @@ from fastapi.responses import HTMLResponse
 from fastapi import APIRouter, HTTPException, Request
 
 from app.core.config import settings
-from app.services.payment_service import PaymentServiceRedsys, create_stripe_payment_link
+from app.services.payment_service import PaymentServiceRedsys, create_stripe_payment_link, send_payment_confirmation
 from app.services.session_service import session_manager
 from app.services.twilio_service import TwilioService
 
@@ -141,6 +141,18 @@ async def payment_response(request: Request):
         
         if not whatsapp_number:
             raise HTTPException(status_code=400, detail="No se encontró un número de WhatsApp")
+        
+        # Obtener la sesión del usuario
+        session_id = session_manager.get_session_by_user(f"whatsapp:{whatsapp_number}")
+        
+        # Enviar email de confirmación a la empresa 
+        order_data = session_manager.get_order_data(session_id) 
+        
+        # Enviar email de confirmación a la empresa
+        send_payment_confirmation(settings.email_company, order_data) 
+        
+        # Limpiar los datos del pedido
+        session_manager.clear_order_data(session_id)
 
         # Enviar mensaje de confirmación vía Twilio
         try:
