@@ -86,6 +86,9 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
         history = session_manager.get_session(active_session_id)
         if not validate_history(history):
             raise HTTPException(status_code=400, detail="Invalid session history")
+        
+        # Initialize the payment link
+        payment_url = None
 
         # Build the prompt and generate the response
         prompt = build_prompt(history, message)
@@ -112,9 +115,6 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
                 "amount": amount,
                 "user_id": user_id
             }
-            
-            # Initialize the payment link
-            payment_url = None
             
             # Generate the payment link
             base_url = f"{settings.url_local.rstrip('/')}/payment/payment-form"
