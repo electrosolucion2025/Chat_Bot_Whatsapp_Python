@@ -113,27 +113,29 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
                 "user_id": user_id
             }
             
+            # Initialize the payment link
+            payment_url = None
+            
             # Generate the payment link
             base_url = f"{settings.url_local.rstrip('/')}/payment/payment-form"
             query_string = urlencode(params)      
             payment_url = f"{base_url}?{query_string}"
             
-            try:
-                TwilioService().send_whatsapp_message(user_id, bot_response)
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=f"Error sending message: {e}")
+        try:
+            TwilioService().send_whatsapp_message(user_id, bot_response)
+            if payment_url is not None:
+                payment_message = f"Puedes pagar tu pedido en el siguiente enlace: \n\n{payment_url}"
+                try:
+                    TwilioService().send_whatsapp_message(user_id, payment_message)
+                except Exception as e:
+                    raise HTTPException(status_code=500, detail=f"Error sending payment link: {e}")
             
-            # Manage the payment link in the bot response
-            payment_message = f"Puedes pagar tu pedido en el siguiente enlace: \n\n{payment_url}"
-            try:
-                TwilioService().send_whatsapp_message(user_id, payment_message)
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=f"Error sending payment link: {e}")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error sending message: {e}")
 
         try:
             # Add the message to the session
             session_manager.add_to_session(active_session_id, user_id, message, bot_response)
-            
         except ValueError as e:
             # Send an error message to the user via Twilio
             error_message = str(e)
