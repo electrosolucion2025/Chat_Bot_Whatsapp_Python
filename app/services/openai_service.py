@@ -77,15 +77,22 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
     6. Return the necessary data for the endpoint.
     """
     try:
+        logging.info(f"Processing message for user_id: {user_id}, session_id: {session_id}")
+        
         # Get the active session ID or create a new one
         active_session_id = session_id or session_manager.get_session_by_user(user_id)
         if not active_session_id:
             active_session_id = session_manager.create_session(user_id)
-            
+        
+        logging.info(f"Active session ID: {active_session_id}")
+        
         # Validate the session history
         history = session_manager.get_session(active_session_id)
         if not validate_history(history):
+            logging.error("Invalid session history")
             raise HTTPException(status_code=400, detail="Invalid session history")
+        
+        logging.info(f"Session history: {history}")
         
         # Initialize the payment link
         payment_url = None
@@ -94,10 +101,14 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
         prompt = build_prompt(history, message)
         bot_response = generate_response(prompt)
         
+        logging.info(f"Generated bot response: {bot_response}")
+        
         # Check if the bot response contains the order summary
         if "Resumen del Pedido:" in bot_response:
             # Parse the order data from the bot response
             order_data = parse_bot_message_redsys(bot_response)
+            
+            logging.info(f"Parsed order data: {order_data}")
             
             # Add user phone number to the order data
             order_data["user_id"] = user_id
@@ -109,6 +120,8 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
             order_id = order_data.get("order_id")  # Extrae el ID del pedido
             amount = float(order_data.get("total", 0))  # Extrae el total, asegurándose de que sea float
 
+            logging.info(f"Order ID: {order_id}, Amount: {amount}")
+            
             # Params for the payment link
             params = {
                 "order_id": order_id,
@@ -121,6 +134,8 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
             query_string = urlencode(params)      
             payment_url = f"{base_url}?{query_string}"
             
+            logging.info(f"Generated payment URL: {payment_url}")
+            
         try:
             TwilioService().send_whatsapp_message(user_id, bot_response)
             if payment_url is not None:
@@ -128,21 +143,25 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
                 try:
                     TwilioService().send_whatsapp_message(user_id, payment_message)
                 except Exception as e:
+                    logging.error(f"Error sending payment link: {e}", exc_info=True)
                     raise HTTPException(status_code=500, detail=f"Error sending payment link: {e}")
             
         except Exception as e:
+            logging.error(f"Error sending message: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail=f"Error sending message: {e}")
 
         try:
             # Add the message to the session
             session_manager.add_to_session(active_session_id, user_id, message, bot_response)
         except ValueError as e:
+            logging.error(f"Error adding to session: {e}", exc_info=True)
             # Send an error message to the user via Twilio
             error_message = str(e)
             try:
                 TwilioService().send_whatsapp_message(user_id, error_message)
                 
             except Exception as twilio_error:
+                logging.error(f"Error sending error message: {twilio_error}", exc_info=True)
                 raise HTTPException(status_code=500, detail=f"Error sending error message: {twilio_error}")
             
             raise HTTPException(status_code=400, detail=str(e))
@@ -158,6 +177,7 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
         raise HTTPException(status_code=e.status_code, detail=e.detail)
     
     except Exception as e:
+        logging.error(f"Internal server error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
     
 def manage_payment_link_stripe(bot_response: str, session_id: str, order_data: dict, user_id: str) -> str:
