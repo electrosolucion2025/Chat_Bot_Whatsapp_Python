@@ -19,9 +19,7 @@ class Settings(BaseSettings):
     url_local: str = "http://localhost:8000"
     email_sender: str
     email_company: str
-    redis_host: str
-    redis_port: int
-    redis_db: int
+    redis_url_railway: str
     
     # INITIAL PROMPT for the chatbot
     INITIAL_PROMPT: str = """
