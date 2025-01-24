@@ -81,6 +81,8 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
         active_session_id = session_id or session_manager.get_session_by_user(user_id)
         if not active_session_id:
             active_session_id = session_manager.create_session(user_id)
+        if not active_session_id:
+            active_session_id = session_manager.create_session(user_id)
         
         # Validate the session history
         history = session_manager.get_session(active_session_id)
@@ -90,7 +92,7 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
         # Build the prompt and generate the response
         prompt = build_prompt(history, message)
         bot_response = generate_response(prompt)
-
+        
         # Check if the bot response contains the order summary
         if "Resumen del Pedido:" in bot_response:
             # Parse the order data from the bot response
@@ -114,38 +116,47 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
             }
             
             # Generate the payment link
-            base_url = f"{settings.url_local}/payment/payment-form"
+            base_url = f"{settings.url_local.rstrip('/')}/payment/payment-form"
             query_string = urlencode(params)      
             payment_url = f"{base_url}?{query_string}"
-
-            # Manage the payment link in the bot response
-            bot_response = manage_payment_link_redsys(bot_response, session_id, payment_url)
 
         try:
             # Add the message to the session
             session_manager.add_to_session(active_session_id, user_id, message, bot_response)
+            
         except ValueError as e:
             # Send an error message to the user via Twilio
             error_message = str(e)
             try:
                 TwilioService().send_whatsapp_message(user_id, error_message)
+                
             except Exception as twilio_error:
                 raise HTTPException(status_code=500, detail=f"Error sending error message: {twilio_error}")
+            
             raise HTTPException(status_code=400, detail=str(e))
 
         try:
-            # Send the message via Twilio
             TwilioService().send_whatsapp_message(user_id, bot_response)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error sending message: {e}")
+        
+        # Manage the payment link in the bot response
+        payment_message = f"Puedes pagar tu pedido en el siguiente enlace: \n\n{payment_url}"
+        try:
+            TwilioService().send_whatsapp_message(user_id, payment_message)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error sending payment link: {e}")
 
         # Return the session ID and the bot response
         return {
             "session_id": active_session_id,
             "bot": bot_response
         }
+        
     except HTTPException as e:
+        logging.error(f"HTTPException: {e.detail}", exc_info=True)
         raise HTTPException(status_code=e.status_code, detail=e.detail)
+    
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
     
@@ -169,28 +180,6 @@ def manage_payment_link_stripe(bot_response: str, session_id: str, order_data: d
 
     # Agregar el nuevo enlace al bot_response
     bot_response += f"\n\nPuedes pagar tu pedido en el siguiente enlace: {payment_link_response['url']}"
-    
-    return bot_response
-
-def manage_payment_link_redsys(bot_response: str,session_id: str, payment_url: str) -> str:
-    """
-    Manage the payment link in the bot response
-    """
-    # Verificar si ya hay un enlace de pago en el bot_response
-    payment_link_prefix = f"{settings.url_local}/payment/payment-form/"
-    lines = bot_response.split("\n")
-    bot_response = "\n".join([line for line in lines if payment_link_prefix not in line])
-
-    # Obtener el enlace existente en la sesión
-    existing_payment_link = session_manager.get_payment_link(session_id)
-    if existing_payment_link:
-        session_manager.clear_payment_link(session_id)
-
-    # Crear un nuevo enlace de pago
-    session_manager.add_payment_link(session_id, payment_url)
-
-    # Agregar el nuevo enlace al bot_response
-    bot_response += f"\n\nPuedes pagar tu pedido en el siguiente enlace: \n\n{payment_url}"
     
     return bot_response
 

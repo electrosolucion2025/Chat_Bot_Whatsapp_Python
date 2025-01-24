@@ -2,8 +2,9 @@ import stripe
 import base64
 import json
 import re
+import uuid
 from typing import Dict
-from urllib.parse import parse_qs, unquote
+from urllib.parse import parse_qs, unquote, urlencode
 
 from fastapi.responses import HTMLResponse
 from fastapi import APIRouter, HTTPException, Request
@@ -126,16 +127,41 @@ async def notify(request: Request):
         ds_response = int(decoded_params["Ds_Response"])
         print("Código de respuesta:", ds_response)
         if 0 <= ds_response <= 99:
-            print("Pago aprobado")
-            return await payment_response_success(body)
+             return await payment_response_success(body)
         
         elif ds_response == 9915:
-            print("Cancelación del usuario")
-            return {"status": "success", "message": "Payment pending"}
+            return await handle_user_cancellation(decoded_params)
         
         else:
-            print("Pago denegado")
-            return {"status": "error", "message": "Payment denied"}
+            return await payment_response_failure(body)
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+async def handle_user_cancellation(decoded_params: dict) -> Dict[str, str]:
+    """
+    Maneja la cancelación del usuario antes de completar el pago.
+    """
+    try:
+        # Extraer el número de WhatsApp usando regex
+        merchant_data = decoded_params.get("Ds_MerchantData")
+        decoded_merchant_data = unquote(merchant_data)
+        match = re.search(r"\+?\d+", decoded_merchant_data)
+        whatsapp_number = match.group() if match else None
+
+        if not whatsapp_number:
+            raise HTTPException(status_code=400, detail="No se encontró un número de WhatsApp")
+
+        # Enviar mensaje al usuario preguntando si olvidó añadir algo o desea cancelar el pedido
+        message = (
+            "Parece que cancelaste el pago. ¿Olvidaste añadir algo a tu pedido o deseas cancelar tu pedido?"
+        )
+        try:
+            TwilioService().send_whatsapp_message(f"whatsapp:{whatsapp_number}", message)
+        except Exception as twilio_error:
+            raise HTTPException(status_code=500, detail=f"Error enviando mensaje por WhatsApp: {twilio_error}")
+
+        return {"status": "pending", "message": "User cancellation handled"}
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -208,6 +234,12 @@ async def payment_response_success(body: bytes):
         print(f"Error procesando la respuesta: {e}")  # Log del error
         raise HTTPException(status_code=400, detail=f"Error procesando la respuesta: {str(e)}")
 
+def generate_new_order_id() -> str:
+    """
+    Genera un nuevo ID de pedido con 12 caracteres numéricos usando UUID.
+    """
+    return str(uuid.uuid4().int)[:12]
+
 @router.post("/failure")
 async def payment_response_failure(body: bytes):
     """
@@ -233,8 +265,69 @@ async def payment_response_failure(body: bytes):
         except Exception as decode_error:
             raise HTTPException(status_code=400, detail=f"Error decodificando Ds_MerchantParameters: {decode_error}")
 
-        # Aquí puedes manejar la lógica adicional para el pago fallido
-        return {"status": "failure", "message": "Payment failed"}
+        # Obtener el código de respuesta
+        ds_response = int(parameters.get("Ds_Response", -1))
+
+        # Extraer el número de WhatsApp usando regex
+        merchant_data = parameters.get("Ds_MerchantData")
+        decoded_merchant_data = unquote(merchant_data)
+        match = re.search(r"\+?\d+", decoded_merchant_data)
+        whatsapp_number = match.group() if match else None
+
+        if not whatsapp_number:
+            raise HTTPException(status_code=400, detail="No se encontró un número de WhatsApp")
+
+        # Mensajes de error específicos
+        error_messages = {
+            129: "Lo sentimos, tu pago ha sido denegado por el emisor de tu tarjeta. Por favor, intenta con otra tarjeta.",
+            180: "Lo sentimos, tu tarjeta ha caducado. Por favor, usa una tarjeta válida.",
+            184: "Lo sentimos, la autenticación del titular de la tarjeta ha fallado. Por favor, verifica tus datos e intenta de nuevo.",
+            190: "Lo sentimos, tu pago ha sido denegado. Por favor, intenta de nuevo más tarde.",
+            202: "Lo sentimos, tu tarjeta está bloqueada. Por favor, contacta con tu banco para más información."
+        }
+
+        # Obtener el mensaje de error correspondiente
+        error_message = error_messages.get(ds_response, "Lo sentimos, tu pago ha fallado. Por favor, intenta de nuevo más tarde. Si tiene alguna duda, contacte con su entidad bancaria.")
+
+        # Enviar mensaje de error vía Twilio
+        try:
+            TwilioService().send_whatsapp_message(f"whatsapp:{whatsapp_number}", error_message)
+        except Exception as twilio_error:
+            raise HTTPException(status_code=500, detail=f"Error enviando mensaje por WhatsApp: {twilio_error}")
+
+        # TODO: ¿BORRAR SESION, ENVIAR LINK DE NUEVO, QUE HAGO?
+        
+        # Obtener la sesión del usuario
+        session_id = session_manager.get_session_by_user(f"whatsapp:{whatsapp_number}")
+        
+        # Enviar email de confirmación a la empresa 
+        order_data = session_manager.get_order_data(session_id)
+        
+        # Generate a new order ID
+        new_order_id = generate_new_order_id()
+        
+        # Generate the payment link with the new order ID
+        params = {
+            "order_id": new_order_id,
+            "amount": order_data.get("total"),
+            "user_id": f"whatsapp:{whatsapp_number}"
+        }
+        
+        base_url = f"{settings.url_local}/payment/payment-form"
+        query_string = urlencode(params)      
+        payment_url = f"{base_url}?{query_string}"
+        
+        try:
+            TwilioService().send_whatsapp_message(
+                f"whatsapp:{whatsapp_number}",
+                f"Puede reintentar el pago en el siguiente enlace:\n{payment_url}"
+            )
+            
+        except Exception as twilio_error:
+            print(f"Error enviando mensaje por WhatsApp: {twilio_error}")
+            raise HTTPException(status_code=500, detail=f"Error enviando mensaje por WhatsApp: {twilio_error}")
+
+        return {"status": "failure", "message": error_message}
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
