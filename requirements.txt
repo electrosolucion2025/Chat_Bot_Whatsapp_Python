@@ -41,6 +41,8 @@ python-multipart==0.0.20
 python-redsys==1.2.0
 PyYAML==6.0.2
 qrcode==8.0
+redis==5.2.1
+redys==0.9.20
 requests==2.32.3
 sendgrid==6.11.0
 setuptools==75.8.0
