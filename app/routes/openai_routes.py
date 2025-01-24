@@ -62,7 +62,7 @@ async def get_openai_response(request: Request) -> dict:
         response_data = process_incoming_message(
             user_id = message_request.user_id,
             message = message_request.message,
-            session_id =message_request.session_id
+            session_id = message_request.session_id
         )
         
         return response_data

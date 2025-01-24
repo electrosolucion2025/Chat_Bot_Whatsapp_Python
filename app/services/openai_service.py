@@ -2,6 +2,7 @@ import os
 import time
 import openai
 import requests
+import logging
 
 from typing import Dict, Optional
 from urllib.parse import urlencode
@@ -75,64 +76,78 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
     5. Send the message via Twilio.
     6. Return the necessary data for the endpoint.
     """
-    # Get the active session ID or create a new one
-    active_session_id = session_id or session_manager.get_session_by_user(user_id)
-    if not active_session_id:
-        active_session_id = session_manager.create_session(user_id)
-
-    # Validate the session history
-    history = session_manager.get_session(active_session_id)
-    if not validate_history(history):
-        raise HTTPException(status_code=400, detail="Invalid session history")
-
-    # Build the prompt and generate the response
-    prompt = build_prompt(history, message)
-    bot_response = generate_response(prompt)
-
-    # Check if the bot response contains the order summary
-    if "Resumen del Pedido:" in bot_response:
-        # Parse the order data from the bot response
-        order_data = parse_bot_message_redsys(bot_response)
-        
-        # Add user phone number to the order data
-        order_data["user_id"] = user_id
-        
-        # Add the order data to the session
-        session_manager.add_order_data(active_session_id, order_data)
-        
-        # Extract the order ID and total
-        order_id = order_data.get("order_id")  # Extrae el ID del pedido
-        amount = float(order_data.get("total", 0))  # Extrae el total, asegurándose de que sea float
-
-        # Params for the payment link
-        params = {
-            "order_id": order_id,
-            "amount": amount,
-            "user_id": user_id
-        }
-        
-        # Generate the payment link
-        base_url = f"{settings.url_local}/payment/payment-form"
-        query_string = urlencode(params)      
-        payment_url = f"{base_url}?{query_string}"
-
-        # Manage the payment link in the bot response
-        bot_response = manage_payment_link_redsys(bot_response, session_id, payment_url)
-
-    # Add the message to the session
-    session_manager.add_to_session(active_session_id, user_id, message, bot_response)
-
     try:
-        # Send the message via Twilio
-        TwilioService().send_whatsapp_message(user_id, bot_response)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error sending message: {e}")
+        # Get the active session ID or create a new one
+        active_session_id = session_id or session_manager.get_session_by_user(user_id)
+        if not active_session_id:
+            active_session_id = session_manager.create_session(user_id)
+        
+        # Validate the session history
+        history = session_manager.get_session(active_session_id)
+        if not validate_history(history):
+            raise HTTPException(status_code=400, detail="Invalid session history")
 
-    # Return the session ID and the bot response
-    return {
-        "session_id": active_session_id,
-        "bot": bot_response
-    }
+        # Build the prompt and generate the response
+        prompt = build_prompt(history, message)
+        bot_response = generate_response(prompt)
+
+        # Check if the bot response contains the order summary
+        if "Resumen del Pedido:" in bot_response:
+            # Parse the order data from the bot response
+            order_data = parse_bot_message_redsys(bot_response)
+            
+            # Add user phone number to the order data
+            order_data["user_id"] = user_id
+            
+            # Add the order data to the session
+            session_manager.add_order_data(active_session_id, order_data)
+            
+            # Extract the order ID and total
+            order_id = order_data.get("order_id")  # Extrae el ID del pedido
+            amount = float(order_data.get("total", 0))  # Extrae el total, asegurándose de que sea float
+
+            # Params for the payment link
+            params = {
+                "order_id": order_id,
+                "amount": amount,
+                "user_id": user_id
+            }
+            
+            # Generate the payment link
+            base_url = f"{settings.url_local}/payment/payment-form"
+            query_string = urlencode(params)      
+            payment_url = f"{base_url}?{query_string}"
+
+            # Manage the payment link in the bot response
+            bot_response = manage_payment_link_redsys(bot_response, session_id, payment_url)
+
+        try:
+            # Add the message to the session
+            session_manager.add_to_session(active_session_id, user_id, message, bot_response)
+        except ValueError as e:
+            # Send an error message to the user via Twilio
+            error_message = str(e)
+            try:
+                TwilioService().send_whatsapp_message(user_id, error_message)
+            except Exception as twilio_error:
+                raise HTTPException(status_code=500, detail=f"Error sending error message: {twilio_error}")
+            raise HTTPException(status_code=400, detail=str(e))
+
+        try:
+            # Send the message via Twilio
+            TwilioService().send_whatsapp_message(user_id, bot_response)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error sending message: {e}")
+
+        # Return the session ID and the bot response
+        return {
+            "session_id": active_session_id,
+            "bot": bot_response
+        }
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")
     
 def manage_payment_link_stripe(bot_response: str, session_id: str, order_data: dict, user_id: str) -> str:
     """

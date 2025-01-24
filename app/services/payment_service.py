@@ -10,6 +10,7 @@ from fastapi import HTTPException
 
 from app.core.config import settings
 from app.services.email_service import EmailService
+from app.services.session_service import session_manager
 
 stripe.api_key = settings.stripe_secret_key
 stripe.api_version = "2024-09-30.acacia"
@@ -86,6 +87,9 @@ def create_stripe_payment_link(order_data: Dict, user_id: str, session_id: str) 
                 "session_id": session_id
             }
         )
+
+        # Guardar el enlace de pago en la sesión
+        session_manager.add_payment_link(session_id, payment_link.url)
 
         return {"url": payment_link.url}
 
