@@ -14,10 +14,14 @@ class Settings(BaseSettings):
     redsys_base_url: str
     redsys_success_url: str
     redsys_failure_url: str
+    redsys_notification_url: str
     redsys_merchant_code: str
     url_local: str = "http://localhost:8000"
     email_sender: str
     email_company: str
+    redis_host: str
+    redis_port: int
+    redis_db: int
     
     # INITIAL PROMPT for the chatbot
     INITIAL_PROMPT: str = """

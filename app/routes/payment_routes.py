@@ -2,8 +2,9 @@ import stripe
 import base64
 import json
 import re
+import uuid
 from typing import Dict
-from urllib.parse import parse_qs, unquote
+from urllib.parse import parse_qs, unquote, urlencode
 
 from fastapi.responses import HTMLResponse
 from fastapi import APIRouter, HTTPException, Request
@@ -98,16 +99,79 @@ def start_payment(order_id: str, amount: float, user_id: str):
         return form_html
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-    
+
+def decode_merchant_parameters(merchant_parameters: str):
+    decoded = base64.b64decode(merchant_parameters).decode("utf-8")
+    return json.loads(decoded)
+
+@router.post("/notify")
+async def notify(request: Request):
+    """
+    Maneja las notificaciones de Redsys después del pago.
+    """
+    try:
+        # Leer el cuerpo de la solicitud una vez
+        body = await request.body()
+
+        # Parsear los datos manualmente
+        form_data = parse_qs(body.decode("utf-8"))
+
+        # Decodificar los parámetros
+        merchant_parameters = form_data.get("Ds_MerchantParameters", [None])[0]
+        if not merchant_parameters:
+            raise HTTPException(status_code=400, detail="Missing Ds_MerchantParameters")
+        
+        decoded_params = decode_merchant_parameters(merchant_parameters)
+
+        # Procesar el resultado del pago
+        ds_response = int(decoded_params["Ds_Response"])
+        print("Código de respuesta:", ds_response)
+        if 0 <= ds_response <= 99:
+             return await payment_response_success(body)
+        
+        elif ds_response == 9915:
+            return await handle_user_cancellation(decoded_params)
+        
+        else:
+            return await payment_response_failure(body)
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+async def handle_user_cancellation(decoded_params: dict) -> Dict[str, str]:
+    """
+    Maneja la cancelación del usuario antes de completar el pago.
+    """
+    try:
+        # Extraer el número de WhatsApp usando regex
+        merchant_data = decoded_params.get("Ds_MerchantData")
+        decoded_merchant_data = unquote(merchant_data)
+        match = re.search(r"\+?\d+", decoded_merchant_data)
+        whatsapp_number = match.group() if match else None
+
+        if not whatsapp_number:
+            raise HTTPException(status_code=400, detail="No se encontró un número de WhatsApp")
+
+        # Enviar mensaje al usuario preguntando si olvidó añadir algo o desea cancelar el pedido
+        message = (
+            "Parece que cancelaste el pago. ¿Olvidaste añadir algo a tu pedido o deseas cancelar tu pedido?"
+        )
+        try:
+            TwilioService().send_whatsapp_message(f"whatsapp:{whatsapp_number}", message)
+        except Exception as twilio_error:
+            raise HTTPException(status_code=500, detail=f"Error enviando mensaje por WhatsApp: {twilio_error}")
+
+        return {"status": "pending", "message": "User cancellation handled"}
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/success")
-async def payment_response(request: Request):
+async def payment_response_success(body: bytes):
     """
     Maneja la respuesta de Redsys después del pago.
     """
     try:
-        # Inspeccionar el contenido crudo de la solicitud
-        body = await request.body()
-
         # Parsear los datos manualmente
         parsed_body = parse_qs(body.decode("utf-8"))
 
@@ -169,7 +233,105 @@ async def payment_response(request: Request):
     except Exception as e:
         print(f"Error procesando la respuesta: {e}")  # Log del error
         raise HTTPException(status_code=400, detail=f"Error procesando la respuesta: {str(e)}")
-    
+
+def generate_new_order_id() -> str:
+    """
+    Genera un nuevo ID de pedido con 12 caracteres numéricos usando UUID.
+    """
+    return str(uuid.uuid4().int)[:12]
+
+@router.post("/failure")
+async def payment_response_failure(body: bytes):
+    """
+    Maneja la respuesta de Redsys después de un fallo en el pago.
+    """
+    try:
+        # Parsear los datos manualmente
+        parsed_body = parse_qs(body.decode("utf-8"))
+
+        # Extraer parámetros
+        Ds_MerchantParameters = parsed_body.get("Ds_MerchantParameters", [None])[0]
+        Ds_Signature = parsed_body.get("Ds_Signature", [None])[0]
+
+        # Validar que los parámetros estén presentes
+        if not Ds_MerchantParameters or not Ds_Signature:
+            raise HTTPException(status_code=400, detail="Missing required parameters")
+
+        # Decodificar Ds_MerchantParameters de Base64 a JSON
+        try:
+            decoded_parameters = base64.b64decode(Ds_MerchantParameters).decode("utf-8")
+            parameters = json.loads(decoded_parameters)
+            
+        except Exception as decode_error:
+            raise HTTPException(status_code=400, detail=f"Error decodificando Ds_MerchantParameters: {decode_error}")
+
+        # Obtener el código de respuesta
+        ds_response = int(parameters.get("Ds_Response", -1))
+
+        # Extraer el número de WhatsApp usando regex
+        merchant_data = parameters.get("Ds_MerchantData")
+        decoded_merchant_data = unquote(merchant_data)
+        match = re.search(r"\+?\d+", decoded_merchant_data)
+        whatsapp_number = match.group() if match else None
+
+        if not whatsapp_number:
+            raise HTTPException(status_code=400, detail="No se encontró un número de WhatsApp")
+
+        # Mensajes de error específicos
+        error_messages = {
+            129: "Lo sentimos, tu pago ha sido denegado por el emisor de tu tarjeta. Por favor, intenta con otra tarjeta.",
+            180: "Lo sentimos, tu tarjeta ha caducado. Por favor, usa una tarjeta válida.",
+            184: "Lo sentimos, la autenticación del titular de la tarjeta ha fallado. Por favor, verifica tus datos e intenta de nuevo.",
+            190: "Lo sentimos, tu pago ha sido denegado. Por favor, intenta de nuevo más tarde.",
+            202: "Lo sentimos, tu tarjeta está bloqueada. Por favor, contacta con tu banco para más información."
+        }
+
+        # Obtener el mensaje de error correspondiente
+        error_message = error_messages.get(ds_response, "Lo sentimos, tu pago ha fallado. Por favor, intenta de nuevo más tarde. Si tiene alguna duda, contacte con su entidad bancaria.")
+
+        # Enviar mensaje de error vía Twilio
+        try:
+            TwilioService().send_whatsapp_message(f"whatsapp:{whatsapp_number}", error_message)
+        except Exception as twilio_error:
+            raise HTTPException(status_code=500, detail=f"Error enviando mensaje por WhatsApp: {twilio_error}")
+
+        # TODO: ¿BORRAR SESION, ENVIAR LINK DE NUEVO, QUE HAGO?
+        
+        # Obtener la sesión del usuario
+        session_id = session_manager.get_session_by_user(f"whatsapp:{whatsapp_number}")
+        
+        # Enviar email de confirmación a la empresa 
+        order_data = session_manager.get_order_data(session_id)
+        
+        # Generate a new order ID
+        new_order_id = generate_new_order_id()
+        
+        # Generate the payment link with the new order ID
+        params = {
+            "order_id": new_order_id,
+            "amount": order_data.get("total"),
+            "user_id": f"whatsapp:{whatsapp_number}"
+        }
+        
+        base_url = f"{settings.url_local}/payment/payment-form"
+        query_string = urlencode(params)      
+        payment_url = f"{base_url}?{query_string}"
+        
+        try:
+            TwilioService().send_whatsapp_message(
+                f"whatsapp:{whatsapp_number}",
+                f"Puede reintentar el pago en el siguiente enlace:\n{payment_url}"
+            )
+            
+        except Exception as twilio_error:
+            print(f"Error enviando mensaje por WhatsApp: {twilio_error}")
+            raise HTTPException(status_code=500, detail=f"Error enviando mensaje por WhatsApp: {twilio_error}")
+
+        return {"status": "failure", "message": error_message}
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.get("/payment-form", response_class=HTMLResponse)
 def render_payment_form(order_id: str, amount: float, user_id: str):
     """

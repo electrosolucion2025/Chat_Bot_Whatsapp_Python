@@ -10,6 +10,7 @@ from fastapi import HTTPException
 
 from app.core.config import settings
 from app.services.email_service import EmailService
+from app.services.session_service import session_manager
 
 stripe.api_key = settings.stripe_secret_key
 stripe.api_version = "2024-09-30.acacia"
@@ -87,6 +88,9 @@ def create_stripe_payment_link(order_data: Dict, user_id: str, session_id: str) 
             }
         )
 
+        # Guardar el enlace de pago en la sesión
+        session_manager.add_payment_link(session_id, payment_link.url)
+
         return {"url": payment_link.url}
 
     except Exception as e:
@@ -110,7 +114,7 @@ class PaymentServiceRedsys:
                 "currency": EUR,
                 "order": order_id.zfill(12),  # Redsys requiere un ID de 12 caracteres
                 "amount": D(amount).quantize(D(".01"), ROUND_HALF_UP),  # Convertimos el monto a dos decimales
-                "merchant_url": settings.redsys_success_url,  # URL de notificación para Redsys
+                "merchant_url": settings.redsys_notification_url,  # URL de notificación para Redsys
                 "merchant_data": f"{user_id}",  # Datos adicionales para el comercio
                 "merchant_name": "ElectroSolucion",
                 "titular": "ElectroSolucion",
