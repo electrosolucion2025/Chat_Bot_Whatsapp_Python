@@ -127,7 +127,7 @@ class SessionManager:
     def get_session_by_user(self, user_id: str) -> Optional[str]:
         """Returns the session ID for a given user ID, if exists."""
         session_id = self.redis_client.get(f"user_session:{user_id}")
-        return session_id.decode() if session_id else None
+        return session_id if session_id else None
             
     def clear_session(self, session_id: str):
         """Clears the session data for a given session ID and resets the message count."""
