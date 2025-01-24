@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     redsys_base_url: str
     redsys_success_url: str
     redsys_failure_url: str
+    redsys_notification_url: str
     redsys_merchant_code: str
     url_local: str = "http://localhost:8000"
     email_sender: str

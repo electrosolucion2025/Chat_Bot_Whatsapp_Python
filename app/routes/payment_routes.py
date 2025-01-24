@@ -98,16 +98,54 @@ def start_payment(order_id: str, amount: float, user_id: str):
         return form_html
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-    
+
+def decode_merchant_parameters(merchant_parameters: str):
+    decoded = base64.b64decode(merchant_parameters).decode("utf-8")
+    return json.loads(decoded)
+
+@router.post("/notify")
+async def notify(request: Request):
+    """
+    Maneja las notificaciones de Redsys después del pago.
+    """
+    try:
+        # Leer el cuerpo de la solicitud una vez
+        body = await request.body()
+
+        # Parsear los datos manualmente
+        form_data = parse_qs(body.decode("utf-8"))
+
+        # Decodificar los parámetros
+        merchant_parameters = form_data.get("Ds_MerchantParameters", [None])[0]
+        if not merchant_parameters:
+            raise HTTPException(status_code=400, detail="Missing Ds_MerchantParameters")
+        
+        decoded_params = decode_merchant_parameters(merchant_parameters)
+
+        # Procesar el resultado del pago
+        ds_response = int(decoded_params["Ds_Response"])
+        print("Código de respuesta:", ds_response)
+        if 0 <= ds_response <= 99:
+            print("Pago aprobado")
+            return await payment_response_success(body)
+        
+        elif ds_response == 9915:
+            print("Cancelación del usuario")
+            return {"status": "success", "message": "Payment pending"}
+        
+        else:
+            print("Pago denegado")
+            return {"status": "error", "message": "Payment denied"}
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/success")
-async def payment_response(request: Request):
+async def payment_response_success(body: bytes):
     """
     Maneja la respuesta de Redsys después del pago.
     """
     try:
-        # Inspeccionar el contenido crudo de la solicitud
-        body = await request.body()
-
         # Parsear los datos manualmente
         parsed_body = parse_qs(body.decode("utf-8"))
 
@@ -169,7 +207,38 @@ async def payment_response(request: Request):
     except Exception as e:
         print(f"Error procesando la respuesta: {e}")  # Log del error
         raise HTTPException(status_code=400, detail=f"Error procesando la respuesta: {str(e)}")
-    
+
+@router.post("/failure")
+async def payment_response_failure(body: bytes):
+    """
+    Maneja la respuesta de Redsys después de un fallo en el pago.
+    """
+    try:
+        # Parsear los datos manualmente
+        parsed_body = parse_qs(body.decode("utf-8"))
+
+        # Extraer parámetros
+        Ds_MerchantParameters = parsed_body.get("Ds_MerchantParameters", [None])[0]
+        Ds_Signature = parsed_body.get("Ds_Signature", [None])[0]
+
+        # Validar que los parámetros estén presentes
+        if not Ds_MerchantParameters or not Ds_Signature:
+            raise HTTPException(status_code=400, detail="Missing required parameters")
+
+        # Decodificar Ds_MerchantParameters de Base64 a JSON
+        try:
+            decoded_parameters = base64.b64decode(Ds_MerchantParameters).decode("utf-8")
+            parameters = json.loads(decoded_parameters)
+            
+        except Exception as decode_error:
+            raise HTTPException(status_code=400, detail=f"Error decodificando Ds_MerchantParameters: {decode_error}")
+
+        # Aquí puedes manejar la lógica adicional para el pago fallido
+        return {"status": "failure", "message": "Payment failed"}
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.get("/payment-form", response_class=HTMLResponse)
 def render_payment_form(order_id: str, amount: float, user_id: str):
     """

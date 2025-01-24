@@ -114,7 +114,7 @@ class PaymentServiceRedsys:
                 "currency": EUR,
                 "order": order_id.zfill(12),  # Redsys requiere un ID de 12 caracteres
                 "amount": D(amount).quantize(D(".01"), ROUND_HALF_UP),  # Convertimos el monto a dos decimales
-                "merchant_url": settings.redsys_success_url,  # URL de notificación para Redsys
+                "merchant_url": settings.redsys_notification_url,  # URL de notificación para Redsys
                 "merchant_data": f"{user_id}",  # Datos adicionales para el comercio
                 "merchant_name": "ElectroSolucion",
                 "titular": "ElectroSolucion",
