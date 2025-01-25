@@ -2,7 +2,7 @@ import redis
 import json
 
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from uuid import uuid4
 
 from app.core import config
@@ -19,6 +19,7 @@ class SessionManager:
         #     host="localhost",
         #     port=6379,
         #     db=0,
+        #     decode_responses=True
         # )
         # self.max_messages_per_hour = 25 # Max messages per hour
 
@@ -46,7 +47,7 @@ class SessionManager:
             
         return session_id
 
-    def is_within_limit(self, user_id: str) -> bool:
+    def is_within_limit(self, user_id: str) -> Tuple[bool, int]:
         """Check if the user is within the message limit and clear history if more than 5 minutes have passed."""
         user_limit_data = self.redis_client.get(f"user_limit:{user_id}")
         if user_limit_data:
@@ -84,9 +85,9 @@ class SessionManager:
                     raise ValueError("El camarero está muy ocupado y no podrá atenderle más por ahora. Por favor, inténtelo de nuevo más tarde.")
 
             if user_limit["message_count"] < self.max_messages_per_hour:
-                return True
+                return True, user_limit["message_count"]
 
-        return False
+        return False, 0
 
     def increment_message_count(self, user_id: str):
         """Increment the message count for the user."""
@@ -101,7 +102,7 @@ class SessionManager:
 
     def add_to_session(self, session_id: str, user_id: str, user_message: str, bot_response: str):
         """Adds a user message and bot response to the session."""
-        if not self.is_within_limit(user_id):
+        if not self.is_within_limit(user_id)[0]:
             raise ValueError("Message limit exceeded or user is blocked")
 
         session_data = self.redis_client.get(f"session:{session_id}")

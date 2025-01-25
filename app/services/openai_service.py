@@ -86,6 +86,9 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
         
         logging.info(f"Active session ID: {active_session_id}")
         
+        # Check if the user is within the message limit
+        within_limit, message_count = session_manager.is_within_limit(user_id)
+        
         # Validate the session history
         history = session_manager.get_session(active_session_id)
         if not validate_history(history):
@@ -136,8 +139,15 @@ def process_incoming_message(user_id: str, message: str, session_id: Optional[st
             
             logging.info(f"Generated payment URL: {payment_url}")
             
+            
         try:
             TwilioService().send_whatsapp_message(user_id, bot_response)
+            
+            # Check if the user has less than 10 messages left
+            if message_count >= session_manager.max_messages_per_hour - 5:
+                warning_message = f"Te quedan {session_manager.max_messages_per_hour - message_count} mensajes antes de alcanzar el límite. El limite se puede reestablecer finalizando una compra o en el lapso de una hora."
+                TwilioService().send_whatsapp_message(user_id, warning_message)
+            
             if payment_url is not None:
                 payment_message = f"Puedes pagar tu pedido en el siguiente enlace: \n\n{payment_url}"
                 try:
