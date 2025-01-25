@@ -11,7 +11,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from app.core.config import settings
 from app.services.payment_service import PaymentServiceRedsys, create_stripe_payment_link, send_payment_confirmation
-from app.services.print_service import print_ticket
+from app.services.print_service import generate_ticket_text, send_ticket_to_esp32
 from app.services.session_service import session_manager
 from app.services.twilio_service import TwilioService
 
@@ -222,7 +222,10 @@ async def payment_response_success(body: bytes):
         
         # Imprimir ticket
         try:
-            print_ticket(order_data)  # Llama a la función de impresión con los datos del pedido
+            # print_ticket(order_data)  # Llama a la función de impresión con los datos del pedido
+            ticket_string = generate_ticket_text(order_data)
+            send_ticket_to_esp32(ticket_string)
+            
         except Exception as print_error:
             raise HTTPException(status_code=500, detail=f"Error imprimiendo el ticket: {print_error}")
         
