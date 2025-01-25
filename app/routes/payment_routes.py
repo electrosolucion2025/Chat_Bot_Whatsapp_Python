@@ -11,6 +11,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from app.core.config import settings
 from app.services.payment_service import PaymentServiceRedsys, create_stripe_payment_link, send_payment_confirmation
+from app.services.print_service import print_ticket
 from app.services.session_service import session_manager
 from app.services.twilio_service import TwilioService
 
@@ -187,7 +188,6 @@ async def payment_response_success(body: bytes):
         try:
             decoded_parameters = base64.b64decode(Ds_MerchantParameters).decode("utf-8")
             parameters = json.loads(decoded_parameters)
-            
         except Exception as decode_error:
             raise HTTPException(status_code=400, detail=f"Error decodificando Ds_MerchantParameters: {decode_error}")
 
@@ -211,9 +211,20 @@ async def payment_response_success(body: bytes):
         
         # Enviar email de confirmación a la empresa 
         order_data = session_manager.get_order_data(session_id) 
+        print("Datos del pedido:", order_data)
         
         # Enviar email de confirmación a la empresa
-        send_payment_confirmation(settings.email_company, order_data) 
+        try:
+            await send_payment_confirmation(settings.email_company, order_data)
+        except Exception as email_error:
+            print(f"Error enviando email de confirmación: {email_error}")
+            raise HTTPException(status_code=500, detail=f"Error enviando email de confirmación: {email_error}")
+        
+        # Imprimir ticket
+        try:
+            print_ticket(order_data)  # Llama a la función de impresión con los datos del pedido
+        except Exception as print_error:
+            raise HTTPException(status_code=500, detail=f"Error imprimiendo el ticket: {print_error}")
         
         # Limpiar los datos del pedido
         session_manager.clear_order_data(session_id)
@@ -233,6 +244,7 @@ async def payment_response_success(body: bytes):
     except Exception as e:
         print(f"Error procesando la respuesta: {e}")  # Log del error
         raise HTTPException(status_code=400, detail=f"Error procesando la respuesta: {str(e)}")
+
 
 def generate_new_order_id() -> str:
     """
