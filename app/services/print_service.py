@@ -133,21 +133,12 @@ def send_ticket_to_esp32(order_data):
     Args:
         order_data (Union[Dict, str]): Datos del pedido, como diccionario o cadena JSON.
     """
-    esp32_ip = "192.168.1.153"  # Reemplaza con la IP local de la ESP32
+    esp32_ip = "88.24.61.206"  # Reemplaza con la IP local de la ESP32
     esp32_port = 9100           # Puerto configurado en la ESP32
 
     if not order_data:
         print("Error: Los datos del pedido están vacíos.")
         return
-
-    # Si es una cadena JSON, deserialízala
-    if isinstance(order_data, str):
-        try:
-            order_data = json.loads(order_data)
-        except json.JSONDecodeError as e:
-            print(f"Error decodificando JSON: {e}")
-            print(f"Contenido recibido: {order_data}")
-            return
 
     # Generar el texto del ticket
     ticket_data = generate_ticket_text(order_data)
