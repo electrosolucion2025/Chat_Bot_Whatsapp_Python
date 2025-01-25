@@ -136,16 +136,22 @@ def send_ticket_to_esp32(order_data):
     esp32_ip = "192.168.1.153"  # Reemplaza con la IP local de la ESP32
     esp32_port = 9100           # Puerto configurado en la ESP32
 
-    # Si order_data es una cadena JSON, deserialízalo
+    if not order_data:
+        print("Error: Los datos del pedido están vacíos.")
+        return
+
+    # Si es una cadena JSON, deserialízala
     if isinstance(order_data, str):
         try:
             order_data = json.loads(order_data)
         except json.JSONDecodeError as e:
             print(f"Error decodificando JSON: {e}")
+            print(f"Contenido recibido: {order_data}")
             return
 
     # Generar el texto del ticket
     ticket_data = generate_ticket_text(order_data)
+    print(ticket_data)
 
     try:
         # Crear un socket TCP

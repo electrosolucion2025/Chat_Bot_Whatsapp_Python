@@ -224,6 +224,7 @@ async def payment_response_success(body: bytes):
         try:
             # print_ticket(order_data)  # Llama a la función de impresión con los datos del pedido
             ticket_string = generate_ticket_text(order_data)
+            print("Ticket generado:", ticket_string)
             send_ticket_to_esp32(ticket_string)
             
         except Exception as print_error:
