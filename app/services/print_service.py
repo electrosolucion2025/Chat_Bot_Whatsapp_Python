@@ -1,3 +1,4 @@
+import json
 import socket
 from escpos.printer import Network
 from typing import List, Dict
@@ -125,15 +126,23 @@ def generate_ticket_text(order_data: Dict) -> str:
 
     return ''.join(ticket)
 
-def send_ticket_to_esp32(order_data: Dict):
+def send_ticket_to_esp32(order_data):
     """
     Envía el ticket formateado a la ESP32 para impresión.
 
     Args:
-        order_data (Dict): Datos del pedido.
+        order_data (Union[Dict, str]): Datos del pedido, como diccionario o cadena JSON.
     """
     esp32_ip = "192.168.1.153"  # Reemplaza con la IP local de la ESP32
-    esp32_port = 9100              # Puerto configurado en la ESP32
+    esp32_port = 9100           # Puerto configurado en la ESP32
+
+    # Si order_data es una cadena JSON, deserialízalo
+    if isinstance(order_data, str):
+        try:
+            order_data = json.loads(order_data)
+        except json.JSONDecodeError as e:
+            print(f"Error decodificando JSON: {e}")
+            return
 
     # Generar el texto del ticket
     ticket_data = generate_ticket_text(order_data)
@@ -141,9 +150,7 @@ def send_ticket_to_esp32(order_data: Dict):
     try:
         # Crear un socket TCP
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            # Conectar al servidor ESP32
             s.connect((esp32_ip, esp32_port))
-            # Enviar los datos del ticket
             s.sendall(ticket_data.encode('utf-8'))
             print("Ticket enviado a la ESP32")
     except Exception as e:
