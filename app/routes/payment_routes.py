@@ -305,16 +305,17 @@ async def payment_response_failure(body: bytes):
         except Exception as twilio_error:
             raise HTTPException(status_code=500, detail=f"Error enviando mensaje por WhatsApp: {twilio_error}")
 
-        # TODO: ¿BORRAR SESION, ENVIAR LINK DE NUEVO, QUE HAGO?
-        
         # Obtener la sesión del usuario
         session_id = session_manager.get_session_by_user(f"whatsapp:{whatsapp_number}")
         
-        # Enviar email de confirmación a la empresa 
+        # Obtener los datos del pedido 
         order_data = session_manager.get_order_data(session_id)
         
         # Generate a new order ID
         new_order_id = generate_new_order_id()
+        
+        # Actualizar el ID del pedido en la sesión
+        session_manager.update_order_data(session_id, {"order_id": new_order_id})
         
         # Generate the payment link with the new order ID
         params = {

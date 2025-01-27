@@ -12,16 +12,16 @@ from app.core.config import settings
 class SessionManager:
     def __init__(self):
         ###### REDIS CLIENT ######
-        self.redis_client = redis.StrictRedis.from_url(settings.redis_url, decode_responses=True)
-        self.max_messages_per_hour = 25 # Max messages per hour
-        ###### LOCAL REDIS CLIENT ######
-        # self.redis_client = redis.StrictRedis(
-        #     host="localhost",
-        #     port=6379,
-        #     db=0,
-        #     decode_responses=True
-        # )
+        # self.redis_client = redis.StrictRedis.from_url(settings.redis_url, decode_responses=True)
         # self.max_messages_per_hour = 25 # Max messages per hour
+        ###### LOCAL REDIS CLIENT ######
+        self.redis_client = redis.StrictRedis(
+            host="localhost",
+            port=6379,
+            db=0,
+            decode_responses=True
+        )
+        self.max_messages_per_hour = 25 # Max messages per hour
 
     def create_session(self, user_id: str) -> str:
         """Creates a new session and returns the session ID."""
@@ -190,6 +190,28 @@ class SessionManager:
             session = json.loads(session_data)
             return session.get("order_data")
         return None
+    
+    def update_order_data(self, session_id: str, updated_data: Dict):
+        """
+        Updates the order data for a given session ID with new values.
+        """
+        # Obtener los datos de la sesión desde Redis
+        session_data = self.redis_client.get(f"session:{session_id}")
+        if not session_data:
+            raise ValueError("Invalid session ID")
+        
+        # Cargar la sesión y los datos del pedido
+        session = json.loads(session_data)
+        order_data = session.get("order_data")
+        if not order_data:
+            raise ValueError("No order data found in the session")
+        
+        # Actualizar los campos del pedido con los datos nuevos
+        order_data.update(updated_data)
+        
+        # Guardar la sesión actualizada en Redis
+        session["order_data"] = order_data
+        self.redis_client.set(f"session:{session_id}", json.dumps(session))
     
     def clear_order_data(self, session_id: str):
         """Clear the order data from the session."""
