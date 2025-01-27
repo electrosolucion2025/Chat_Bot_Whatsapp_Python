@@ -13,7 +13,7 @@ from app.core.config import settings
 from app.services.payment_service import PaymentServiceRedsys, create_stripe_payment_link, send_payment_confirmation
 from app.services.session_service import session_manager
 from app.services.twilio_service import TwilioService
-from app.shared.data_store import pending_tickets  # Importar la lista global
+from app.shared.data_store import pending_tickets_store
 
 router = APIRouter(prefix="/payment", tags=["Stripe"])
 payment_service_redsys = PaymentServiceRedsys()
@@ -211,7 +211,6 @@ async def payment_response_success(body: bytes):
         
         # Enviar email de confirmación a la empresa 
         order_data = session_manager.get_order_data(session_id) 
-        print("Datos del pedido:", order_data)
         
         # Enviar email de confirmación a la empresa
         try:
@@ -220,12 +219,10 @@ async def payment_response_success(body: bytes):
             print(f"Error enviando email de confirmación: {email_error}")
             raise HTTPException(status_code=500, detail=f"Error enviando email de confirmación: {email_error}")
         
-        # Imprimir ticket
+        # Agregar ticket
         try:
-            # Agregar el pedido a la cola de impresión
-            pending_tickets.append(order_data)
+            pending_tickets_store.add_ticket(order_data)
             print("Ticket agregado a la cola de impresión:", order_data)
-            
         except Exception as print_error:
             raise HTTPException(status_code=500, detail=f"Error imprimiendo el ticket: {print_error}")
         
