@@ -29,441 +29,140 @@ class Settings(BaseSettings):
     {
         "categories": [
             {
-                "name": "Bebidas",
-                "items": [
-                    {
-                        "name": "Coca Cola",
-                        "ingredients": "Refresco",
-                        "price": 2.2,
-                        "extras": [],
-                        "available": true
-                    },
-                    {
-                        "name": "Coca Cola Zero",
-                        "ingredients": "Refresco sin azúcar",
-                        "price": 2.2,
-                        "extras": [],
-                        "available": true
-                    },
-                    {
-                        "name": "Fanta Naranja",
-                        "ingredients": "Refresco de naranja",
-                        "price": 2.2,
-                        "extras": [],
-                        "available": true
-                    },
-                    {
-                        "name": "7Up",
-                        "ingredients": "Refresco de lima-limón",
-                        "price": 2.2,
-                        "extras": [],
-                        "available": true
-                    },
-                    {
-                        "name": "Agua",
-                        "ingredients": "Agua natural",
-                        "price": 1.4,
-                        "extras": [],
-                        "available": true
-                    },
-                    {
-                        "name": "Tinto de Verano",
-                        "ingredients": "Vino tinto con gaseosa",
-                        "price": 1.9,
-                        "extras": [],
-                        "available": true
-                    },
-                    {
-                        "name": "Caña Cruzcampo",
-                        "ingredients": "Cerveza",
-                        "price": 1.7,
-                        "extras": [],
-                        "available": true
-                    },
-                    {
-                        "name": "Estrella Galicia",
-                        "ingredients": "Cerveza premium",
-                        "price": 1.9,
-                        "extras": [],
-                        "available": true
-                    }
-                ]
-            },
-            {
-                "name": "Entrantes",
-                "items": [
-                    {
-                        "name": "Camembert Frito",
-                        "ingredients": "Queso frito con mermelada de arándanos",
-                        "price": 4.7,
-                        "allergens": ["lactosa", "gluten"],
-                        "extras": [
-                            { "name": "Salsa de Miel Mostaza", "price": 1.0, "available": true },
-                            { "name": "Frutos Secos", "price": 0.8, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Delicias de Pollo",
-                        "ingredients": "Pechuga de pollo empanada con salsa a elegir",
-                        "price": 4.5,
-                        "allergens": ["gluten"],
-                        "extras": [
-                            { "name": "Queso Cheddar", "price": 1.2, "available": true },
-                            { "name": "Guacamole", "price": 1.5, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Aros de Cebolla",
-                        "ingredients": "Crujientes y deliciosos aros de cebolla",
-                        "price": 4.5,
-                        "allergens": ["gluten"],
-                        "extras": [
-                            { "name": "Salsa Barbacoa", "price": 0.9, "available": true },
-                            { "name": "Salsa Picante", "price": 0.7, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Nachos",
-                        "ingredients": "Nachos de queso con guacamole, cheddar y pico de gallo",
-                        "price": 4.5,
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Jalapeños", "price": 0.6, "available": true },
-                            { "name": "Salsa Mexicana", "price": 0.8, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Mozzarella Steak",
-                        "ingredients": "Palitos de mozzarella con salsa de miel mostaza",
-                        "price": 4.9,
-                        "allergens": ["lactosa", "gluten"],
-                        "extras": [
-                            { "name": "Bacon Crujiente", "price": 1.3, "available": true },
-                            { "name": "Salsa de Ajo", "price": 1.0, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Nachos Rancheros",
-                        "ingredients": "Con guacamole, pico de gallo, jalapeños, cheddar, chili con carne y crema agria",
-                        "price": 9.9,
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Salsa Queso", "price": 1.5, "available": true },
-                            { "name": "Crema Agria Extra", "price": 1.0, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Provolone",
-                        "ingredients": "Combinado de pera, queso de cabra y queso provolone al horno",
-                        "price": 5.8,
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Aceitunas Negras", "price": 1.2, "available": true },
-                            { "name": "Tomates Secos", "price": 1.0, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Champiñones Rellenos",
-                        "ingredients": "Con crema de queso, jamón y salsa roquefort",
-                        "price": 5.95,
-                        "allergens": ["lactosa", "gluten"],
-                        "extras": [
-                            { "name": "Ajo Asado", "price": 1.1, "available": true },
-                            { "name": "Salsa de Trufa", "price": 1.5, "available": true }
-                        ],
-                        "available": true
-                    }
-                ]
-            },
-            {
-                "name": "Patatas Fritas",
-                "items": [
-                    {
-                        "name": "Patatas Fritas",
-                        "ingredients": "Con kétchup y mayonesa",
-                        "price": {
-                            "half": 2.5,
-                            "full": 4.5
+                "name": "Pizzas",
+                    "items": [
+                        {
+                            "name": "Focaccia Oregano",
+                            "price": 5.5,
+                            "ingredients": "Oregano, Aceite y Sal",
+                            "allergens": ["Gluten", "Sesamo", "Huevo"],
+                            "extras": [],
+                            "available": true
                         },
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Aguacate", "price": 1.2, "available": true },
-                            { "name": "Bacon", "price": 1.3, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Patatas Bravas",
-                        "ingredients": "Con alioli y salsa brava",
-                        "price": 4.95,
-                        "allergens": ["lactosa", "gluten"],
-                        "extras": [
-                            { "name": "Salsa de Queso", "price": 1.2, "available": true },
-                            { "name": "Chorizo", "price": 1.4, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Papas Locas",
-                        "ingredients": "Con jamón york, mayonesa, kétchup y mostaza",
-                        "price": 4.95,
-                        "allergens": ["gluten", "lactosa"],
-                        "extras": [
-                            { "name": "Salsa Picante", "price": 0.8, "available": true },
-                            { "name": "Guacamole", "price": 1.5, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Patatas 4 Salsas",
-                        "ingredients": "Con cheddar, yogur, barbacoa y miel mostaza",
-                        "price": 5.5,
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Jalapeños", "price": 0.7, "available": true },
-                            { "name": "Salsa Extra", "price": 1.0, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Salchipapas",
-                        "ingredients": "Con salchichas, mayonesa y kétchup",
-                        "price": 5.5,
-                        "allergens": ["gluten", "lactosa"],
-                        "extras": [
-                            { "name": "Cebolla Caramelizada", "price": 1.0, "available": true },
-                            { "name": "Queso Extra", "price": 1.2, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Patatas Cream Fresh",
-                        "ingredients": "Con mezcla de cuatro quesos y salsa Cream Fresh",
-                        "price": 6.5,
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Bacon Crumble", "price": 1.5, "available": true },
-                            { "name": "Cebollino", "price": 0.5, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Pulled Pork Fries",
-                        "ingredients": "Con cheddar, mayonesa de bacon ahumado y cerdo deshilachado",
-                        "price": 7.5,
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Salsa Barbacoa", "price": 1.0, "available": true },
-                            { "name": "Pico de Gallo", "price": 0.8, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Patatas Bueno Bueno",
-                        "ingredients": "Con Shawarma o bacon, mozzarella, cheddar y salsa de yogurt",
-                        "price": 7.9,
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Shawarma Extra", "price": 2.0, "available": true },
-                            { "name": "Salsa Extra", "price": 1.0, "available": true }
-                        ],
-                        "available": true
-                    }
-                ]
-            },
-            {
-                "name": "Ensaladas",
-                "items": [
-                    {
-                        "name": "Mixta",
-                        "ingredients": "Lechuga, tomate, cebolla, zanahoria, maíz, atún y huevo",
-                        "price": 4.9,
-                        "allergens": ["pescado"],
-                        "extras": [
-                            { "name": "Aguacate", "price": 1.2, "available": true },
-                            { "name": "Pollo a la Parrilla", "price": 2.0, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Shawarma",
-                        "ingredients": "Lechuga, tomate, cebolla, shawarma de pollo o ternera y salsa de yogurt",
-                        "price": 5.5,
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Hummus", "price": 1.3, "available": true },
-                            { "name": "Aceitunas Negras", "price": 0.9, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Capresse",
-                        "ingredients": "Tomate, albahaca, mozzarella fresca, aceitunas negras, ajo y perejil",
-                        "price": 6.9,
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Bacon", "price": 1.5, "available": true },
-                            { "name": "Pesto", "price": 1.0, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Cesar",
-                        "ingredients": "Lechuga, tomate cherry, picatostes, pollo crujiente, queso grana padano y salsa Cesar",
-                        "price": 7.5,
-                        "allergens": ["lactosa", "gluten"],
-                        "extras": [
-                            { "name": "Bacon", "price": 1.3, "available": true },
-                            { "name": "Huevo Cocido", "price": 1.0, "available": true }
-                        ],
-                        "available": true
-                    }
-                ]
-            },
-            {
-                "name": "Hamburguesas",
-                "items": [
-                    {
-                        "name": "Hamburguesa de Pollo",
-                        "ingredients": "Pollo empanado con mayonesa, lechuga, tomate y cebolla",
-                        "price": 6.5,
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Cheddar", "price": 1.2, "available": true },
-                            { "name": "Bacon", "price": 1.3, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Hamburguesa Clásica",
-                        "ingredients": "Carne de ternera con queso cheddar, tomate, cebolla y salsa especial",
-                        "price": 7.5,
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Huevo Frito", "price": 1.0, "available": true },
-                            { "name": "Queso Azul", "price": 1.5, "available": true }
-                        ],
-                        "available": true
-                    }
-                ]
-            },
-            {
-                "name": "Perritos",
-                "items": [
-                    {
-                        "name": "Perrito Clásico",
-                        "ingredients": "Con ketchup, mayonesa o mostaza",
-                        "price": 2.9,
-                        "allergens": ["gluten", "lactosa"],
-                        "extras": [
-                            { "name": "Cheddar", "price": 1.2, "available": true },
-                            { "name": "Bacon", "price": 1.3, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Perrito Mozzarella",
-                        "ingredients": "Mozzarella, patatas paja y mostaza",
-                        "price": 4.5,
-                        "allergens": ["lactosa", "gluten"],
-                        "extras": [
-                            { "name": "Cebolla Caramelizada", "price": 1.0, "available": true },
-                            { "name": "Salsa de Queso", "price": 1.5, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Perrito Bacon",
-                        "ingredients": "Bacon, mozzarella, cheddar y cebolla frita",
-                        "price": 4.9,
-                        "allergens": ["lactosa", "gluten"],
-                        "extras": [
-                            { "name": "Cebolla Caramelizada", "price": 1.0, "available": true },
-                            { "name": "Salsa de Queso", "price": 1.5, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Perrito Mexicano",
-                        "ingredients": "Pico de gallo, pepinillo, jalapeño, maíz y cheddar",
-                        "price": 4.5,
-                        "allergens": ["lactosa"],
-                        "extras": [
-                            { "name": "Cebolla Caramelizada", "price": 1.0, "available": true },
-                            { "name": "Salsa de Queso", "price": 1.5, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Perrito Baurú",
-                        "ingredients": "Mozzarella, tomate, cebolla, maíz, guisantes, kétchup, mostaza y patatas paja",
-                        "price": 4.9,
-                        "allergens": ["lactosa", "gluten"],
-                        "extras": [
-                            { "name": "Cebolla Caramelizada", "price": 1.0, "available": true },
-                            { "name": "Salsa de Queso", "price": 1.5, "available": true }
-                        ],
-                        "available": true
-                    }
-                ]
-            },
-            {
-                "name": "Sandwiches",
-                "items": [
-                    {
-                        "name": "Olímpico",
-                        "ingredients": "Mayonesa, lechuga, tomate, jamón, queso y huevo duro",
-                        "price": 6.9,
-                        "allergens": ["gluten", "lactosa"],
-                        "extras": [
-                            { "name": "Bacon", "price": 1.2, "available": true },
-                            { "name": "Aguacate", "price": 1.5, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Croque Monsieur",
-                        "ingredients": "Bechamel, jamón, quesos gouda, cheddar, mozzarella y orégano",
-                        "price": 6.9,
-                        "allergens": ["gluten", "lactosa"],
-                        "extras": [
-                            { "name": "Bacon", "price": 1.2, "available": true },
-                            { "name": "Aguacate", "price": 1.5, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Club House",
-                        "ingredients": "Pollo desmenuzado, bacon, huevo, jamón york, queso, lechuga, tomate y mayonesa",
-                        "price": 6.9,
-                        "allergens": ["gluten", "lactosa"],
-                        "extras": [
-                            { "name": "Bacon", "price": 1.2, "available": true },
-                            { "name": "Aguacate", "price": 1.5, "available": true }
-                        ],
-                        "available": true
-                    },
-                    {
-                        "name": "Bacon Cheddar",
-                        "ingredients": "Bacon, cheddar, cebolla caramelizada y salsa BBQ",
-                        "price": 6.9,
-                        "allergens": ["gluten", "lactosa"],
-                        "extras": [
-                            { "name": "Bacon", "price": 1.2, "available": true },
-                            { "name": "Aguacate", "price": 1.5, "available": true }
-                        ],
-                        "available": true
-                    }
-                ]
-            }
-        ]
+                        {
+                            "name": "Focaccia de Ajo",
+                            "price": 6.5,
+                            "ingredients": "Mozzarella, Ajo y Perejil",
+                            "allergens": ["Gluten", "Lacteos"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Napoletana",
+                            "price": 7.5,
+                            "ingredients": "Tomate, Anchoas, Oregano y Ajo",
+                            "allergens": ["Gluten", "Lacteos"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Margherita",
+                            "price": 8.0,
+                            "ingredients": "Tomate y Mozzarella",
+                            "allergens": ["Gluten", "Lacteos"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Prociutto",
+                            "price": 8.5,
+                            "ingredients": "Tomate, Mozzarella, Jamon",
+                            "allergens": ["Gluten", "Lacteos"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Capricciosa",
+                            "price": 9.5,
+                            "ingredients": "Tomate, Mozzarella, Jamon y Champiñones",
+                            "allergens": ["Gluten", "Lacteos", "Sulfito"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Atun",
+                            "price": 9.5,
+                            "ingredients": "Tomate, Mozzarella, Cebolla y Atun",
+                            "allergens": ["Gluten", "Lacteos", "Pescado"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Hawaii",
+                            "price": 9.5,
+                            "ingredients": "Tomate, Mozzarella, Jamon y Piña",
+                            "allergens": ["Gluten", "Lacteos", "Sulfito"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Peperoni",
+                            "price": 10.0,
+                            "ingredients": "Tomate, Mozzarella y Peperoni",
+                            "allergens": ["Gluten", "Lacteos", "Sulfito"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "4 Quesos",
+                            "price": 10.0,
+                            "ingredients": "Tomate, Mozzarella, Gorgonzola, Emmental, Parmesano",
+                            "allergens": ["Gluten", "Lacteos"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Vegetariana",
+                            "price": 10.0,
+                            "ingredients": "Tomate, Muzzarella, Calabacin, Berenjena, Champiñones y Cebolla",
+                            "allergens": ["Gluten", "Lacteos"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Calzone",
+                            "price": 10.0,
+                            "ingredients": "Tomate, Mozzarella, Jamon y Champiñones",
+                            "allergens": ["Gluten", "Lacteos", "Sulfito"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Barbacoa",
+                            "price": 11.0,
+                            "ingredients": "Tomate, Mozzarella, Pollo, Cebolla y Salsa Barbacoa",
+                            "allergens": ["Gluten", "Lacteos"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Frutti di Mare",
+                            "price": 10.0,
+                            "ingredients": "Tomate, Mozzarella, Calamares, Mejillones, Atun y Anchoas",
+                            "allergens": ["Gluten", "Lacteos", "Moluscos", "Pescado", "Crustaceos"],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Pizza Media Luna",
+                            "price": 12.0,
+                            "ingredients": "Detalles no disponibles",
+                            "allergens": [],
+                            "extras": [],
+                            "available": true
+                        },
+                        {
+                            "name": "Serrano",
+                            "price": 12.0,
+                            "ingredients": "Tomate, Mozzarella y Jamon Serrano",
+                            "allergens": ["Gluten", "Lacteos", "Sulfito"],
+                            "extras": [],
+                            "available": true
+                        }
+                    ]
+                }
+            ]
+        }
     }
     
     Eres un camarero en un restaurante, te llamas Juan. Presentate y di que trabajas en El Mundo del Campero. También pregunta al cliente en que mesa se encuentra.
