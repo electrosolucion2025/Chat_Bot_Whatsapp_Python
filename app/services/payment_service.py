@@ -107,6 +107,16 @@ class PaymentServiceRedsys:
             :param amount: Monto del pago (en euros, por ejemplo 10.50).
             :return: Diccionario con los parámetros necesarios para el formulario de pago.
             """
+            # Obtener la sesión del usuario
+            # session = session_manager.get_session_by_user(user_id)
+            
+            # Obtener los datos del pedido
+            # order_data = session_manager.get_order_data(session)
+            
+            # Generar la descripción de los productos
+            # product_description = self.generate_product_description(order_data)
+            
+            # Parámetros para la solicitud de pago
             parameters = {
                 "merchant_code": settings.redsys_merchant_code,
                 "terminal": "1",
@@ -118,7 +128,7 @@ class PaymentServiceRedsys:
                 "merchant_data": f"{user_id}",  # Datos adicionales para el comercio
                 "merchant_name": "ElectroSolucion",
                 "titular": "ElectroSolucion",
-                "product_description": "Descripción de los productos",
+                "product_description": "Descripción de los productos...",
             }
             
             # Prepara la solicitud
@@ -142,6 +152,61 @@ class PaymentServiceRedsys:
             return response
         except Exception as e:
             raise ValueError(f"Error al validar la respuesta: {e}")
+        
+    def generate_product_description(order_data: dict, max_length: int = 200) -> str:
+        """
+        Genera una descripción de los productos para el campo product_description de Redsys.
+        
+        Args:
+            order_data (dict): Datos del pedido que incluyen platos, bebidas y otros detalles.
+            max_length (int): Longitud máxima permitida para la descripción.
+        
+        Returns:
+            str: Descripción resumida de los productos con un límite de longitud.
+        """
+        description_parts = []
+
+        # Procesar los platos
+        dishes = order_data.get("dishes", [])
+        for dish in dishes:
+            dish_desc = dish.get("name", "Producto sin nombre")
+            
+            # Añadir extras si existen
+            extras = dish.get("extras", [])
+            if extras:
+                extras_desc = ", ".join([f"{extra['name']} (+{extra['price']:.2f}€)" for extra in extras])
+                dish_desc += f" (Extras: {extras_desc})"
+            
+            # Añadir exclusiones si existen
+            exclusions = dish.get("exclusions", [])
+            if exclusions:
+                exclusions_desc = ", ".join([exclusion["name"] for exclusion in exclusions])
+                dish_desc += f" (Sin: {exclusions_desc})"
+            
+            # Añadir cantidad y precio
+            quantity = dish.get("quantity", 1)
+            price = dish.get("price", 0.0)
+            dish_desc += f" x{quantity} - {price:.2f}€"
+            
+            description_parts.append(dish_desc)
+
+        # Procesar las bebidas
+        drinks = order_data.get("drinks", [])
+        for drink in drinks:
+            drink_desc = drink.get("name", "Bebida sin nombre")
+            quantity = drink.get("quantity", 1)
+            price = drink.get("price", 0.0)
+            drink_desc += f" x{quantity} - {price:.2f}€"
+            description_parts.append(drink_desc)
+
+        # Unir todos los productos en una única descripción
+        product_description = "; ".join(description_parts)
+
+        # Añadir puntos suspensivos si excede el límite de longitud
+        if len(product_description) > max_length:
+            product_description = product_description[:max_length - 3] + "..."
+        
+        return product_description
 
 async def send_payment_confirmation(to_email: str, order_data: dict):
     """
