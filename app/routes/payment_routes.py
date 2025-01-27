@@ -11,7 +11,6 @@ from fastapi import APIRouter, HTTPException, Request
 
 from app.core.config import settings
 from app.services.payment_service import PaymentServiceRedsys, create_stripe_payment_link, send_payment_confirmation
-from app.services.print_service import generate_ticket_text, send_ticket_to_esp32
 from app.services.session_service import session_manager
 from app.services.twilio_service import TwilioService
 from app.shared.data_store import pending_tickets  # Importar la lista global
