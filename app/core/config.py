@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     email_sender: str
     email_company: str
     redis_url: str
+    empresa_db: str
     
     # INITIAL PROMPT for the chatbot
     INITIAL_PROMPT: str = """

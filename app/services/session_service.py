@@ -12,7 +12,11 @@ from app.core.config import settings
 class SessionManager:
     def __init__(self):
         ###### REDIS CLIENT ######
-        self.redis_client = redis.StrictRedis.from_url(settings.redis_url, decode_responses=True)
+        self.redis_client = redis.StrictRedis.from_url(
+            settings.redis_url,
+            decode_responses=True,
+            db=settings.empresa_db
+        )
         self.max_messages_per_hour = 25 # Max messages per hour
         ###### LOCAL REDIS CLIENT ######
         # self.redis_client = redis.StrictRedis(
