@@ -17,6 +17,7 @@ async def get_ticket():
         raise HTTPException(status_code=404, detail="No hay tickets pendientes.")
     
     # Obtener el primer ticket pendiente y eliminarlo de la lista
+    print("Estamos dentro de GET TICKET y vemos si la lista efectivamente tiene algo", pending_tickets)
     ticket_data = pending_tickets.pop(0)
     
     # Generar el texto del ticket
