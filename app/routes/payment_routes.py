@@ -14,6 +14,7 @@ from app.services.payment_service import PaymentServiceRedsys, create_stripe_pay
 from app.services.print_service import generate_ticket_text, send_ticket_to_esp32
 from app.services.session_service import session_manager
 from app.services.twilio_service import TwilioService
+from app.shared.data_store import pending_tickets  # Importar la lista global
 
 router = APIRouter(prefix="/payment", tags=["Stripe"])
 payment_service_redsys = PaymentServiceRedsys()
@@ -222,8 +223,9 @@ async def payment_response_success(body: bytes):
         
         # Imprimir ticket
         try:
-            # print_ticket(order_data)  # Llama a la función de impresión con los datos del pedido
-            send_ticket_to_esp32(order_data)
+            # Agregar el pedido a la cola de impresión
+            pending_tickets.append(order_data)
+            print("Ticket agregado a la cola de impresión:", order_data)
             
         except Exception as print_error:
             raise HTTPException(status_code=500, detail=f"Error imprimiendo el ticket: {print_error}")

@@ -125,30 +125,3 @@ def generate_ticket_text(order_data: Dict) -> str:
     ticket.append("\n\n\n")  # Espacios para corte automático
 
     return ''.join(ticket)
-
-def send_ticket_to_esp32(order_data):
-    """
-    Envía el ticket formateado a la ESP32 para impresión.
-
-    Args:
-        order_data (Union[Dict, str]): Datos del pedido, como diccionario o cadena JSON.
-    """
-    esp32_ip = "88.24.61.206"  # Reemplaza con la IP local de la ESP32
-    esp32_port = 9100           # Puerto configurado en la ESP32
-
-    if not order_data:
-        print("Error: Los datos del pedido están vacíos.")
-        return
-
-    # Generar el texto del ticket
-    ticket_data = generate_ticket_text(order_data)
-    print(ticket_data)
-
-    try:
-        # Crear un socket TCP
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((esp32_ip, esp32_port))
-            s.sendall(ticket_data.encode('utf-8'))
-            print("Ticket enviado a la ESP32")
-    except Exception as e:
-        print(f"Error enviando datos a la ESP32: {e}")
