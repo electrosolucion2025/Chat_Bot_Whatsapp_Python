@@ -12,16 +12,16 @@ from app.core.config import settings
 class SessionManager:
     def __init__(self):
         ###### REDIS CLIENT ######
-        # self.redis_client = redis.StrictRedis.from_url(settings.redis_url, decode_responses=True)
-        # self.max_messages_per_hour = 25 # Max messages per hour
-        ###### LOCAL REDIS CLIENT ######
-        self.redis_client = redis.StrictRedis(
-            host="localhost",
-            port=6379,
-            db=0,
-            decode_responses=True
-        )
+        self.redis_client = redis.StrictRedis.from_url(settings.redis_url, decode_responses=True)
         self.max_messages_per_hour = 25 # Max messages per hour
+        ###### LOCAL REDIS CLIENT ######
+        # self.redis_client = redis.StrictRedis(
+        #     host="localhost",
+        #     port=6379,
+        #     db=0,
+        #     decode_responses=True
+        # )
+        # self.max_messages_per_hour = 25 # Max messages per hour
 
     def create_session(self, user_id: str) -> str:
         """Creates a new session and returns the session ID."""
