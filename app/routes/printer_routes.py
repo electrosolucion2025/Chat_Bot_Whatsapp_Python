@@ -24,5 +24,12 @@ async def get_ticket():
     # Generar el texto del ticket
     ticket_text = generate_ticket_text(ticket_data)
     
+    # Convertir a Latin-1 antes de enviarlo
+    try:
+        ticket_text = ticket_text.encode("latin-1").decode("latin-1")
+    except UnicodeEncodeError:
+        # Si hay caracteres que no se pueden convertir
+        ticket_text = ticket_text.encode("ascii", errors="ignore").decode("latin-1")
+    
     # Devolver el texto del ticket
     return ticket_text
