@@ -15,7 +15,7 @@ from app.services.session_service import session_manager
 from app.services.twilio_service import TwilioService
 from app.shared.data_store import pending_tickets_store
 
-router = APIRouter(prefix="/payment", tags=["Stripe"])
+router = APIRouter(prefix="/payment", tags=["payment"])
 payment_service_redsys = PaymentServiceRedsys()
 
 @router.post("/create-payment-link")
