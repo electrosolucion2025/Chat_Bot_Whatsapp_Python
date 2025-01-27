@@ -1,6 +1,6 @@
 class PendingTickets:
     def __init__(self):
-        self.tickets = []  # Almacena los tickets pendientes
+        self.tickets = []
 
     def add_ticket(self, ticket):
         self.tickets.append(ticket)
@@ -14,25 +14,5 @@ class PendingTickets:
         return len(self.tickets) > 0
 
 
-# Instancia global para manejar los tickets
+# Instancia global del singleton
 pending_tickets_store = PendingTickets()
-
-# Inicializa con datos de prueba
-pending_tickets_store.tickets = [
-    {
-        "order_id": "250127106860",
-        "table_number": 7,
-        "dishes": [
-            {
-                "name": "Hamburguesa Clásica",
-                "price": 7.5,
-                "quantity": 1,
-                "extras": [],
-                "exclusions": [],
-            }
-        ],
-        "drinks": [],
-        "total": 7.5,
-        "user_id": "whatsapp:+34607227417",
-    }
-]

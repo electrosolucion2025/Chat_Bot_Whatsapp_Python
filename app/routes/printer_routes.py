@@ -1,7 +1,7 @@
-from app.shared.data_store import pending_tickets_store
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse
 from app.services.print_service import generate_ticket_text
+from app.shared.data_store import pending_tickets_store
 
 router = APIRouter()
 
@@ -13,6 +13,8 @@ async def get_ticket():
     Returns:
         PlainTextResponse: Texto formateado del ticket.
     """
+    print(f"Referencia de pending_tickets en payment_routes: {id(pending_tickets_store)}")
+    
     if not pending_tickets_store.has_tickets():
         raise HTTPException(status_code=404, detail="No hay tickets pendientes.")
 
