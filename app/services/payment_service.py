@@ -148,8 +148,6 @@ async def send_payment_confirmation(to_email: str, order_data: dict):
     Sends a payment confirmation email to the user with a styled ticket-like format,
     including the table number and customer phone number formatted nicely.
     """
-    print("dentro de send_payment_confirmation")
-    
     def format_phone_number(phone: str) -> str:
         """
         Formats a phone number into a human-readable format.

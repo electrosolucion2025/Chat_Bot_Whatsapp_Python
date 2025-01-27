@@ -126,7 +126,6 @@ async def notify(request: Request):
 
         # Procesar el resultado del pago
         ds_response = int(decoded_params["Ds_Response"])
-        print("Código de respuesta:", ds_response)
         if 0 <= ds_response <= 99:
              return await payment_response_success(body)
         
@@ -221,9 +220,7 @@ async def payment_response_success(body: bytes):
         
         # Agregar ticket
         try:
-            print(f"Referencia de pending_tickets en payment_routes: {id(pending_tickets_store)}")
             pending_tickets_store.add_ticket(order_data)
-            print("Ticket agregado a la cola de impresión:", order_data)
         except Exception as print_error:
             raise HTTPException(status_code=500, detail=f"Error imprimiendo el ticket: {print_error}")
         

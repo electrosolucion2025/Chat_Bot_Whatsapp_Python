@@ -60,7 +60,6 @@ class SessionManager:
                 session_id = self.get_session_by_user(user_id)
                 if session_id:
                     self.clear_session(session_id)
-                print("Cleared session history MINUTE 1")
                 user_limit["last_message_time"] = now.isoformat()
                 self.redis_client.set(f"user_limit:{user_id}", json.dumps(user_limit))
 

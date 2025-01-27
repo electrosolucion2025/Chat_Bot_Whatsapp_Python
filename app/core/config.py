@@ -35,48 +35,56 @@ class Settings(BaseSettings):
                         "ingredients": "Refresco",
                         "price": 2.2,
                         "extras": [],
+                        "available": true
                     },
                     {
                         "name": "Coca Cola Zero",
                         "ingredients": "Refresco sin azúcar",
                         "price": 2.2,
                         "extras": [],
+                        "available": true
                     },
                     {
                         "name": "Fanta Naranja",
                         "ingredients": "Refresco de naranja",
                         "price": 2.2,
                         "extras": [],
+                        "available": true
                     },
                     {
                         "name": "7Up",
                         "ingredients": "Refresco de lima-limón",
                         "price": 2.2,
                         "extras": [],
+                        "available": true
                     },
                     {
                         "name": "Agua",
                         "ingredients": "Agua natural",
                         "price": 1.4,
                         "extras": [],
+                        "available": true
                     },
                     {
                         "name": "Tinto de Verano",
                         "ingredients": "Vino tinto con gaseosa",
                         "price": 1.9,
                         "extras": [],
+                        "available": true
                     },
                     {
                         "name": "Caña Cruzcampo",
                         "ingredients": "Cerveza",
                         "price": 1.7,
                         "extras": [],
+                        "available": true
                     },
                     {
                         "name": "Estrella Galicia",
                         "ingredients": "Cerveza premium",
                         "price": 1.9,
                         "extras": [],
+                        "available": true
                     }
                 ]
             },
@@ -89,9 +97,10 @@ class Settings(BaseSettings):
                         "price": 4.7,
                         "allergens": ["lactosa", "gluten"],
                         "extras": [
-                            { "name": "Salsa de Miel Mostaza", "price": 1.0 },
-                            { "name": "Frutos Secos", "price": 0.8 }
-                        ]
+                            { "name": "Salsa de Miel Mostaza", "price": 1.0, "available": true },
+                            { "name": "Frutos Secos", "price": 0.8, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Delicias de Pollo",
@@ -99,9 +108,10 @@ class Settings(BaseSettings):
                         "price": 4.5,
                         "allergens": ["gluten"],
                         "extras": [
-                            { "name": "Queso Cheddar", "price": 1.2 },
-                            { "name": "Guacamole", "price": 1.5 }
-                        ]
+                            { "name": "Queso Cheddar", "price": 1.2, "available": true },
+                            { "name": "Guacamole", "price": 1.5, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Aros de Cebolla",
@@ -109,9 +119,10 @@ class Settings(BaseSettings):
                         "price": 4.5,
                         "allergens": ["gluten"],
                         "extras": [
-                            { "name": "Salsa Barbacoa", "price": 0.9 },
-                            { "name": "Salsa Picante", "price": 0.7 }
-                        ]
+                            { "name": "Salsa Barbacoa", "price": 0.9, "available": true },
+                            { "name": "Salsa Picante", "price": 0.7, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Nachos",
@@ -119,9 +130,10 @@ class Settings(BaseSettings):
                         "price": 4.5,
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Jalapeños", "price": 0.6 },
-                            { "name": "Salsa Mexicana", "price": 0.8 }
-                        ]
+                            { "name": "Jalapeños", "price": 0.6, "available": true },
+                            { "name": "Salsa Mexicana", "price": 0.8, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Mozzarella Steak",
@@ -129,9 +141,10 @@ class Settings(BaseSettings):
                         "price": 4.9,
                         "allergens": ["lactosa", "gluten"],
                         "extras": [
-                            { "name": "Bacon Crujiente", "price": 1.3 },
-                            { "name": "Salsa de Ajo", "price": 1.0 }
-                        ]
+                            { "name": "Bacon Crujiente", "price": 1.3, "available": true },
+                            { "name": "Salsa de Ajo", "price": 1.0, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Nachos Rancheros",
@@ -139,9 +152,10 @@ class Settings(BaseSettings):
                         "price": 9.9,
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Salsa Queso", "price": 1.5 },
-                            { "name": "Crema Agria Extra", "price": 1.0 }
-                        ]
+                            { "name": "Salsa Queso", "price": 1.5, "available": true },
+                            { "name": "Crema Agria Extra", "price": 1.0, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Provolone",
@@ -149,9 +163,10 @@ class Settings(BaseSettings):
                         "price": 5.8,
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Aceitunas Negras", "price": 1.2 },
-                            { "name": "Tomates Secos", "price": 1.0 }
-                        ]
+                            { "name": "Aceitunas Negras", "price": 1.2, "available": true },
+                            { "name": "Tomates Secos", "price": 1.0, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Champiñones Rellenos",
@@ -159,9 +174,10 @@ class Settings(BaseSettings):
                         "price": 5.95,
                         "allergens": ["lactosa", "gluten"],
                         "extras": [
-                            { "name": "Ajo Asado", "price": 1.1 },
-                            { "name": "Salsa de Trufa", "price": 1.5 }
-                        ]
+                            { "name": "Ajo Asado", "price": 1.1, "available": true },
+                            { "name": "Salsa de Trufa", "price": 1.5, "available": true }
+                        ],
+                        "available": true
                     }
                 ]
             },
@@ -177,9 +193,10 @@ class Settings(BaseSettings):
                         },
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Aguacate", "price": 1.2 },
-                            { "name": "Bacon", "price": 1.3 }
-                        ]
+                            { "name": "Aguacate", "price": 1.2, "available": true },
+                            { "name": "Bacon", "price": 1.3, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Patatas Bravas",
@@ -187,9 +204,10 @@ class Settings(BaseSettings):
                         "price": 4.95,
                         "allergens": ["lactosa", "gluten"],
                         "extras": [
-                            { "name": "Salsa de Queso", "price": 1.2 },
-                            { "name": "Chorizo", "price": 1.4 }
-                        ]
+                            { "name": "Salsa de Queso", "price": 1.2, "available": true },
+                            { "name": "Chorizo", "price": 1.4, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Papas Locas",
@@ -197,9 +215,10 @@ class Settings(BaseSettings):
                         "price": 4.95,
                         "allergens": ["gluten", "lactosa"],
                         "extras": [
-                            { "name": "Salsa Picante", "price": 0.8 },
-                            { "name": "Guacamole", "price": 1.5 }
-                        ]
+                            { "name": "Salsa Picante", "price": 0.8, "available": true },
+                            { "name": "Guacamole", "price": 1.5, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Patatas 4 Salsas",
@@ -207,9 +226,10 @@ class Settings(BaseSettings):
                         "price": 5.5,
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Jalapeños", "price": 0.7 },
-                            { "name": "Salsa Extra", "price": 1.0 }
-                        ]
+                            { "name": "Jalapeños", "price": 0.7, "available": true },
+                            { "name": "Salsa Extra", "price": 1.0, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Salchipapas",
@@ -217,9 +237,10 @@ class Settings(BaseSettings):
                         "price": 5.5,
                         "allergens": ["gluten", "lactosa"],
                         "extras": [
-                            { "name": "Cebolla Caramelizada", "price": 1.0 },
-                            { "name": "Queso Extra", "price": 1.2 }
-                        ]
+                            { "name": "Cebolla Caramelizada", "price": 1.0, "available": true },
+                            { "name": "Queso Extra", "price": 1.2, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Patatas Cream Fresh",
@@ -227,9 +248,10 @@ class Settings(BaseSettings):
                         "price": 6.5,
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Bacon Crumble", "price": 1.5 },
-                            { "name": "Cebollino", "price": 0.5 }
-                        ]
+                            { "name": "Bacon Crumble", "price": 1.5, "available": true },
+                            { "name": "Cebollino", "price": 0.5, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Pulled Pork Fries",
@@ -237,9 +259,10 @@ class Settings(BaseSettings):
                         "price": 7.5,
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Salsa Barbacoa", "price": 1.0 },
-                            { "name": "Pico de Gallo", "price": 0.8 }
-                        ]
+                            { "name": "Salsa Barbacoa", "price": 1.0, "available": true },
+                            { "name": "Pico de Gallo", "price": 0.8, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Patatas Bueno Bueno",
@@ -247,9 +270,10 @@ class Settings(BaseSettings):
                         "price": 7.9,
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Shawarma Extra", "price": 2.0 },
-                            { "name": "Salsa Extra", "price": 1.0 }
-                        ]
+                            { "name": "Shawarma Extra", "price": 2.0, "available": true },
+                            { "name": "Salsa Extra", "price": 1.0, "available": true }
+                        ],
+                        "available": true
                     }
                 ]
             },
@@ -262,9 +286,10 @@ class Settings(BaseSettings):
                         "price": 4.9,
                         "allergens": ["pescado"],
                         "extras": [
-                            { "name": "Aguacate", "price": 1.2 },
-                            { "name": "Pollo a la Parrilla", "price": 2.0 }
-                        ]
+                            { "name": "Aguacate", "price": 1.2, "available": true },
+                            { "name": "Pollo a la Parrilla", "price": 2.0, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Shawarma",
@@ -272,9 +297,10 @@ class Settings(BaseSettings):
                         "price": 5.5,
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Hummus", "price": 1.3 },
-                            { "name": "Aceitunas Negras", "price": 0.9 }
-                        ]
+                            { "name": "Hummus", "price": 1.3, "available": true },
+                            { "name": "Aceitunas Negras", "price": 0.9, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Capresse",
@@ -282,9 +308,10 @@ class Settings(BaseSettings):
                         "price": 6.9,
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Bacon", "price": 1.5 },
-                            { "name": "Pesto", "price": 1.0 }
-                        ]
+                            { "name": "Bacon", "price": 1.5, "available": true },
+                            { "name": "Pesto", "price": 1.0, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Cesar",
@@ -292,9 +319,10 @@ class Settings(BaseSettings):
                         "price": 7.5,
                         "allergens": ["lactosa", "gluten"],
                         "extras": [
-                            { "name": "Bacon", "price": 1.3 },
-                            { "name": "Huevo Cocido", "price": 1.0 }
-                        ]
+                            { "name": "Bacon", "price": 1.3, "available": true },
+                            { "name": "Huevo Cocido", "price": 1.0, "available": true }
+                        ],
+                        "available": true
                     }
                 ]
             },
@@ -307,9 +335,10 @@ class Settings(BaseSettings):
                         "price": 6.5,
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Cheddar", "price": 1.2 },
-                            { "name": "Bacon", "price": 1.3 }
-                        ]
+                            { "name": "Cheddar", "price": 1.2, "available": true },
+                            { "name": "Bacon", "price": 1.3, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Hamburguesa Clásica",
@@ -317,9 +346,10 @@ class Settings(BaseSettings):
                         "price": 7.5,
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Huevo Frito", "price": 1.0 },
-                            { "name": "Queso Azul", "price": 1.5 }
-                        ]
+                            { "name": "Huevo Frito", "price": 1.0, "available": true },
+                            { "name": "Queso Azul", "price": 1.5, "available": true }
+                        ],
+                        "available": true
                     }
                 ]
             },
@@ -332,9 +362,10 @@ class Settings(BaseSettings):
                         "price": 2.9,
                         "allergens": ["gluten", "lactosa"],
                         "extras": [
-                            { "name": "Cheddar", "price": 1.2 },
-                            { "name": "Bacon", "price": 1.3 }
-                        ]
+                            { "name": "Cheddar", "price": 1.2, "available": true },
+                            { "name": "Bacon", "price": 1.3, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Perrito Mozzarella",
@@ -342,9 +373,10 @@ class Settings(BaseSettings):
                         "price": 4.5,
                         "allergens": ["lactosa", "gluten"],
                         "extras": [
-                            { "name": "Cebolla Caramelizada", "price": 1.0 },
-                            { "name": "Salsa de Queso", "price": 1.5 }
-                        ]
+                            { "name": "Cebolla Caramelizada", "price": 1.0, "available": true },
+                            { "name": "Salsa de Queso", "price": 1.5, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Perrito Bacon",
@@ -352,9 +384,10 @@ class Settings(BaseSettings):
                         "price": 4.9,
                         "allergens": ["lactosa", "gluten"],
                         "extras": [
-                            { "name": "Cebolla Caramelizada", "price": 1.0 },
-                            { "name": "Salsa de Queso", "price": 1.5 }
-                        ]
+                            { "name": "Cebolla Caramelizada", "price": 1.0, "available": true },
+                            { "name": "Salsa de Queso", "price": 1.5, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Perrito Mexicano",
@@ -362,9 +395,10 @@ class Settings(BaseSettings):
                         "price": 4.5,
                         "allergens": ["lactosa"],
                         "extras": [
-                            { "name": "Cebolla Caramelizada", "price": 1.0 },
-                            { "name": "Salsa de Queso", "price": 1.5 }
-                        ]
+                            { "name": "Cebolla Caramelizada", "price": 1.0, "available": true },
+                            { "name": "Salsa de Queso", "price": 1.5, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Perrito Baurú",
@@ -372,9 +406,10 @@ class Settings(BaseSettings):
                         "price": 4.9,
                         "allergens": ["lactosa", "gluten"],
                         "extras": [
-                            { "name": "Cebolla Caramelizada", "price": 1.0 },
-                            { "name": "Salsa de Queso", "price": 1.5 }
-                        ]
+                            { "name": "Cebolla Caramelizada", "price": 1.0, "available": true },
+                            { "name": "Salsa de Queso", "price": 1.5, "available": true }
+                        ],
+                        "available": true
                     }
                 ]
             },
@@ -387,9 +422,10 @@ class Settings(BaseSettings):
                         "price": 6.9,
                         "allergens": ["gluten", "lactosa"],
                         "extras": [
-                            { "name": "Bacon", "price": 1.2 },
-                            { "name": "Aguacate", "price": 1.5 }
-                        ]
+                            { "name": "Bacon", "price": 1.2, "available": true },
+                            { "name": "Aguacate", "price": 1.5, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Croque Monsieur",
@@ -397,9 +433,10 @@ class Settings(BaseSettings):
                         "price": 6.9,
                         "allergens": ["gluten", "lactosa"],
                         "extras": [
-                            { "name": "Bacon", "price": 1.2 },
-                            { "name": "Aguacate", "price": 1.5 }
-                        ]
+                            { "name": "Bacon", "price": 1.2, "available": true },
+                            { "name": "Aguacate", "price": 1.5, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Club House",
@@ -407,9 +444,10 @@ class Settings(BaseSettings):
                         "price": 6.9,
                         "allergens": ["gluten", "lactosa"],
                         "extras": [
-                            { "name": "Bacon", "price": 1.2 },
-                            { "name": "Aguacate", "price": 1.5 }
-                        ]
+                            { "name": "Bacon", "price": 1.2, "available": true },
+                            { "name": "Aguacate", "price": 1.5, "available": true }
+                        ],
+                        "available": true
                     },
                     {
                         "name": "Bacon Cheddar",
@@ -417,9 +455,10 @@ class Settings(BaseSettings):
                         "price": 6.9,
                         "allergens": ["gluten", "lactosa"],
                         "extras": [
-                            { "name": "Bacon", "price": 1.2 },
-                            { "name": "Aguacate", "price": 1.5 }
-                        ]
+                            { "name": "Bacon", "price": 1.2, "available": true },
+                            { "name": "Aguacate", "price": 1.5, "available": true }
+                        ],
+                        "available": true
                     }
                 ]
             }
@@ -432,6 +471,9 @@ class Settings(BaseSettings):
     Puedes decir algun plato de alguna categoria, pero no muestres el menu entero. 
     Responde de manera profesional (utiliza emoticonos para ser mas agradable).
     Antes de ofrecer algo, comprueba que exista en el menu. NO ofrezcas nada que no esté en el menu.
+    Debes utilizar el JSON del menú para responder a los clientes. No puedes salirte del JSON. 
+    Recuerda que los articulos del menú, tienen la opcion de "available" para saber si estan disponibles o no.
+    
     Toma el pedido de los clientes.
 
     Cuando pregunten por el menu, di siempre las categorias principales primero, bebidas, entrantes, etc...    

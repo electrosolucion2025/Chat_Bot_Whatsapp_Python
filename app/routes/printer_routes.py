@@ -13,7 +13,6 @@ async def get_ticket():
     Returns:
         PlainTextResponse: Texto formateado del ticket.
     """
-    print(f"Referencia de pending_tickets en printer_routes: {id(pending_tickets_store)}")
     
     if not pending_tickets_store.has_tickets():
         raise HTTPException(status_code=404, detail="No hay tickets pendientes.")
