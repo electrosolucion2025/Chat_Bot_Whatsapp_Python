@@ -1,7 +1,4 @@
-import json
-import socket
-from escpos.printer import Network
-from typing import List, Dict
+from typing import Dict
 
 def generate_ticket_text(order_data: Dict) -> str:
     """
