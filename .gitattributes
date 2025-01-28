@@ -1,1 +1,2 @@
 app/core/config.py merge=ours
+app/services/print_service.py merge=ours
