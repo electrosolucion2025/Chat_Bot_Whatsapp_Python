@@ -2,7 +2,6 @@ import os
 import time
 import openai
 import requests
-import logging
 
 from typing import Dict, Optional
 from urllib.parse import urlencode
